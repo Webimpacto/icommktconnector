@@ -1,0 +1,517 @@
+{
+	"orderId": "842530984765-01",
+	"sequence": "10198287",
+	"marketplaceOrderId": "",
+	"marketplaceServicesEndpoint": "http:\/\/portal.vtexcommerce.com.br\/api\/oms?an=patprimo",
+	"sellerOrderId": "00-842530984765-01",
+	"origin": "Marketplace",
+	"affiliateId": "",
+	"salesChannel": "1",
+	"merchantName": null,
+	"status": "handling",
+	"statusDescription": "Preparando Entrega",
+	"value": 3748200,
+	"creationDate": "2018-06-27T05:16:20.3392708+00:00",
+	"lastChange": "2018-06-27T07:00:24.8363989+00:00",
+	"orderGroup": "842530984765",
+	"totals": [{
+		"id": "Items",
+		"name": "Total de los items",
+		"value": 3148200
+	}, {
+		"id": "Discounts",
+		"name": "Total de descuentos",
+		"value": 0
+	}, {
+		"id": "Shipping",
+		"name": "Costo total del env\u00edo",
+		"value": 600000
+	}, {
+		"id": "Tax",
+		"name": "Costo total del cambio",
+		"value": 0
+	}],
+	"items": [{
+		"uniqueId": "E8E9DB8F163E47CABDF6BA943D49B1E2",
+		"id": "2086859",
+		"productId": "2007061",
+		"ean": "7704863998766",
+		"lockId": "00-842530984765-01",
+		"itemAttachment": {
+			"content": [],
+			"name": null
+		},
+		"attachments": [],
+		"quantity": 1,
+		"seller": "1",
+		"name": "Pantaloncillo B\u00f3xer Medio Estampado Azul XL",
+		"refId": "44000193-5064-Azul-XL",
+		"price": 1049400,
+		"listPrice": 1590000,
+		"manualPrice": null,
+		"priceTags": [],
+		"imageUrl": "http:\/\/patprimo.vteximg.com.br\/arquivos\/ids\/448659-135-162\/44000193-5064_1.jpg?v=636269881030730000",
+		"detailUrl": "\/boxers-y-pantaloncillos-hombre-44000193\/p",
+		"components": [],
+		"bundleItems": [],
+		"params": [],
+		"offerings": [],
+		"sellerSku": "2086859",
+		"priceValidUntil": null,
+		"commission": 0,
+		"tax": 0,
+		"preSaleDate": null,
+		"additionalInfo": {
+			"brandName": "Patprimo",
+			"brandId": "2000000",
+			"categoriesIds": "\/2\/59\/87\/",
+			"productClusterId": "135,140,192,204,206,219,232,275,313,326,339,360,362,374,382,385,390,397,407,411,413,421,423,426,431,444,449,452,454,455,458,474,491",
+			"commercialConditionId": "1",
+			"dimension": {
+				"cubicweight": 0.0002,
+				"height": 1,
+				"length": 1,
+				"weight": 300,
+				"width": 1
+			},
+			"offeringInfo": null,
+			"offeringType": null,
+			"offeringTypeId": null
+		},
+		"measurementUnit": "un",
+		"unitMultiplier": 1,
+		"sellingPrice": 1049400,
+		"isGift": false,
+		"shippingPrice": null,
+		"rewardValue": 0,
+		"freightCommission": 0
+	}, {
+		"uniqueId": "A7271E91784A415AAAC82F29439400A4",
+		"id": "2086865",
+		"productId": "2007061",
+		"ean": "7704863998889",
+		"lockId": "00-842530984765-01",
+		"itemAttachment": {
+			"content": [],
+			"name": null
+		},
+		"attachments": [],
+		"quantity": 1,
+		"seller": "1",
+		"name": "Pantaloncillo B\u00f3xer Medio Estampado Morado XL",
+		"refId": "44000193-74924-Morado-XL",
+		"price": 1049400,
+		"listPrice": 1590000,
+		"manualPrice": null,
+		"priceTags": [],
+		"imageUrl": "http:\/\/patprimo.vteximg.com.br\/arquivos\/ids\/448678-135-162\/44000193-74924_1.jpg?v=636269881152800000",
+		"detailUrl": "\/boxers-y-pantaloncillos-hombre-44000193\/p",
+		"components": [],
+		"bundleItems": [],
+		"params": [],
+		"offerings": [],
+		"sellerSku": "2086865",
+		"priceValidUntil": null,
+		"commission": 0,
+		"tax": 0,
+		"preSaleDate": null,
+		"additionalInfo": {
+			"brandName": "Patprimo",
+			"brandId": "2000000",
+			"categoriesIds": "\/2\/59\/87\/",
+			"productClusterId": "135,140,192,204,206,219,232,275,313,326,339,360,362,374,382,385,390,397,407,411,413,421,423,426,431,444,449,452,454,455,458,474,491",
+			"commercialConditionId": "1",
+			"dimension": {
+				"cubicweight": 0.0002,
+				"height": 1,
+				"length": 1,
+				"weight": 300,
+				"width": 1
+			},
+			"offeringInfo": null,
+			"offeringType": null,
+			"offeringTypeId": null
+		},
+		"measurementUnit": "un",
+		"unitMultiplier": 1,
+		"sellingPrice": 1049400,
+		"isGift": false,
+		"shippingPrice": null,
+		"rewardValue": 0,
+		"freightCommission": 0
+	}, {
+		"uniqueId": "8742695758B8434088307BF46EBC17FF",
+		"id": "2001743",
+		"productId": "2000045",
+		"ean": "7702218788512",
+		"lockId": "00-842530984765-01",
+		"itemAttachment": {
+			"content": [],
+			"name": null
+		},
+		"attachments": [],
+		"quantity": 1,
+		"seller": "1",
+		"name": "Pantaloncillo Boxer Estampado Azul Oscuro XL",
+		"refId": "44000034-51-XL",
+		"price": 1049400,
+		"listPrice": 1590000,
+		"manualPrice": null,
+		"priceTags": [],
+		"imageUrl": "http:\/\/patprimo.vteximg.com.br\/arquivos\/ids\/386328-135-162\/44000034-51_1.jpg?v=636158732068430000",
+		"detailUrl": "\/pantaloncillo-boxer-estampado-44000034\/p",
+		"components": [],
+		"bundleItems": [],
+		"params": [],
+		"offerings": [],
+		"sellerSku": "2001743",
+		"priceValidUntil": null,
+		"commission": 0,
+		"tax": 0,
+		"preSaleDate": null,
+		"additionalInfo": {
+			"brandName": "Patprimo",
+			"brandId": "2000000",
+			"categoriesIds": "\/2\/59\/87\/",
+			"productClusterId": "135,140,144,150,153,159,161,162,166,168,170,171,173,178,179,185,190,191,192,194,204,206,209,219,228,232,234,237,238,240,250,253,275,282,295,296,309,312,313,326,339,347,360,362,374,382,385,388,390,397,407,411,413,421,426,431,444,449,452,454,474,491",
+			"commercialConditionId": "1",
+			"dimension": {
+				"cubicweight": 0.0002,
+				"height": 1,
+				"length": 1,
+				"weight": 5,
+				"width": 1
+			},
+			"offeringInfo": null,
+			"offeringType": null,
+			"offeringTypeId": null
+		},
+		"measurementUnit": "un",
+		"unitMultiplier": 1,
+		"sellingPrice": 1049400,
+		"isGift": false,
+		"shippingPrice": null,
+		"rewardValue": 0,
+		"freightCommission": 0
+	}],
+	"marketplaceItems": [],
+	"clientProfileData": {
+		"id": "clientProfileData",
+		"email": "f09f37aae90b4e62ad31e33b80bb8b16@ct.vtex.com.br",
+		"firstName": "Luis",
+		"lastName": "Morales",
+		"documentType": "cedulaCOL",
+		"document": "1065576895",
+		"phone": "+573104138329",
+		"corporateName": null,
+		"tradeName": null,
+		"corporateDocument": null,
+		"stateInscription": null,
+		"corporatePhone": null,
+		"isCorporate": false,
+		"userProfileId": "9354eea3-962a-424d-aa2b-d572a2cfb3fb",
+		"customerClass": null
+	},
+	"giftRegistryData": null,
+	"marketingData": {
+		"id": "marketingData",
+		"utmSource": "VTEXCEM",
+		"utmPartner": null,
+		"utmMedium": "Abandono_carrito",
+		"utmCampaign": "Abandono",
+		"coupon": null,
+		"utmiCampaign": "",
+		"utmipage": "",
+		"utmiPart": "",
+		"marketingTags": []
+	},
+	"ratesAndBenefitsData": {
+		"id": "ratesAndBenefitsData",
+		"rateAndBenefitsIdentifiers": []
+	},
+	"shippingData": {
+		"id": "shippingData",
+		"address": {
+			"addressType": "residential",
+			"receiverName": "Luis Morales",
+			"addressId": "-1530076290589",
+			"postalCode": "20001",
+			"city": "Valledupar",
+			"state": "CESAR",
+			"country": "COL",
+			"street": "Manzana 26 casa 15",
+			"number": null,
+			"neighborhood": "450 a\u00f1os primera etapa",
+			"complement": "Casa de esquina rejas negras",
+			"reference": null,
+			"geoCoordinates": []
+		},
+		"logisticsInfo": [{
+			"itemIndex": 0,
+			"selectedSla": "Normal",
+			"lockTTL": "12d",
+			"price": 297600,
+			"listPrice": 297600,
+			"sellingPrice": 297600,
+			"deliveryWindow": null,
+			"deliveryCompany": "Servientrega",
+			"shippingEstimate": "5bd",
+			"shippingEstimateDate": "2018-07-04T05:17:07.5474131+00:00",
+			"slas": [{
+				"id": "Normal",
+				"name": "Normal",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 297600,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}, {
+				"id": "Pago en efectivo Contraentrega",
+				"name": "Pago en efectivo Contraentrega",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 297600,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}],
+			"shipsTo": ["COL"],
+			"deliveryIds": [{
+				"courierId": "1",
+				"courierName": "Servientrega",
+				"dockId": "1",
+				"quantity": 1,
+				"warehouseId": "1_1"
+			}],
+			"deliveryChannel": "delivery",
+			"pickupStoreInfo": {
+				"additionalInfo": null,
+				"address": null,
+				"dockId": null,
+				"friendlyName": null,
+				"isPickupStore": false
+			},
+			"addressId": "-1530076290589"
+		}, {
+			"itemIndex": 1,
+			"selectedSla": "Normal",
+			"lockTTL": "12d",
+			"price": 297500,
+			"listPrice": 297500,
+			"sellingPrice": 297500,
+			"deliveryWindow": null,
+			"deliveryCompany": "Servientrega",
+			"shippingEstimate": "5bd",
+			"shippingEstimateDate": "2018-07-04T05:17:07.5474131+00:00",
+			"slas": [{
+				"id": "Normal",
+				"name": "Normal",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 297500,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}, {
+				"id": "Pago en efectivo Contraentrega",
+				"name": "Pago en efectivo Contraentrega",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 297500,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}],
+			"shipsTo": ["COL"],
+			"deliveryIds": [{
+				"courierId": "1",
+				"courierName": "Servientrega",
+				"dockId": "1",
+				"quantity": 1,
+				"warehouseId": "1_1"
+			}],
+			"deliveryChannel": "delivery",
+			"pickupStoreInfo": {
+				"additionalInfo": null,
+				"address": null,
+				"dockId": null,
+				"friendlyName": null,
+				"isPickupStore": false
+			},
+			"addressId": "-1530076290589"
+		}, {
+			"itemIndex": 2,
+			"selectedSla": "Normal",
+			"lockTTL": "12d",
+			"price": 4900,
+			"listPrice": 4900,
+			"sellingPrice": 4900,
+			"deliveryWindow": null,
+			"deliveryCompany": "Servientrega",
+			"shippingEstimate": "5bd",
+			"shippingEstimateDate": "2018-07-04T05:17:07.5474131+00:00",
+			"slas": [{
+				"id": "Normal",
+				"name": "Normal",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 4900,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}, {
+				"id": "Pago en efectivo Contraentrega",
+				"name": "Pago en efectivo Contraentrega",
+				"shippingEstimate": "5bd",
+				"deliveryWindow": null,
+				"price": 4900,
+				"deliveryChannel": "delivery",
+				"pickupStoreInfo": {
+					"additionalInfo": null,
+					"address": null,
+					"dockId": null,
+					"friendlyName": null,
+					"isPickupStore": false
+				}
+			}],
+			"shipsTo": ["COL"],
+			"deliveryIds": [{
+				"courierId": "1",
+				"courierName": "Servientrega",
+				"dockId": "1",
+				"quantity": 1,
+				"warehouseId": "1_1"
+			}],
+			"deliveryChannel": "delivery",
+			"pickupStoreInfo": {
+				"additionalInfo": null,
+				"address": null,
+				"dockId": null,
+				"friendlyName": null,
+				"isPickupStore": false
+			},
+			"addressId": "-1530076290589"
+		}],
+		"trackingHints": null,
+		"selectedAddresses": [{
+			"addressId": "-1530076290589",
+			"addressType": "residential",
+			"receiverName": "Luis Morales",
+			"street": "Manzana 26 casa 15",
+			"number": null,
+			"complement": "Casa de esquina rejas negras",
+			"neighborhood": "450 a\u00f1os primera etapa",
+			"postalCode": "20001",
+			"city": "Valledupar",
+			"state": "CESAR",
+			"country": "COL",
+			"reference": null,
+			"geoCoordinates": []
+		}]
+	},
+	"paymentData": {
+		"transactions": [{
+			"isActive": true,
+			"transactionId": "409E420B030E4E33945A1B8E02DF9BB9",
+			"merchantName": "PATPRIMO",
+			"payments": [{
+				"id": "5E7D1816D5CA4CB1953006F05BE86814",
+				"paymentSystem": "2",
+				"paymentSystemName": "Visa",
+				"value": 3748200,
+				"installments": 3,
+				"referenceValue": 3748200,
+				"cardHolder": null,
+				"cardNumber": null,
+				"firstDigits": "442549",
+				"lastDigits": "3457",
+				"cvv2": null,
+				"expireMonth": null,
+				"expireYear": null,
+				"url": null,
+				"giftCardId": null,
+				"giftCardName": null,
+				"giftCardCaption": null,
+				"redemptionCode": null,
+				"group": "creditCard",
+				"tid": "929111714",
+				"dueDate": null,
+				"connectorResponses": {
+					"Tid": "929111714",
+					"ReturnCode": "00",
+					"Message": "00",
+					"authId": "846529",
+					"orderId": "1041876267",
+					"state": "APPROVED"
+				}
+			}]
+		}]
+	},
+	"packageAttachment": {
+		"packages": []
+	},
+	"sellers": [{
+		"id": "1",
+		"name": "PatPrimo",
+		"logo": ""
+	}],
+	"callCenterOperatorData": null,
+	"followUpEmail": "cead99a91b104f5c871e888f28a1e07e@ct.vtex.com.br",
+	"lastMessage": null,
+	"hostname": "patprimo",
+	"changesAttachment": null,
+	"openTextField": null,
+	"roundingError": 0,
+	"orderFormId": "0b0f14fad79d428d934a82c5a1ccab2e",
+	"commercialConditionData": null,
+	"isCompleted": true,
+	"customData": null,
+	"storePreferencesData": {
+		"countryCode": "COL",
+		"currencyCode": "COP",
+		"currencyFormatInfo": {
+			"CurrencyDecimalDigits": 2,
+			"CurrencyDecimalSeparator": ",",
+			"CurrencyGroupSeparator": ".",
+			"CurrencyGroupSize": 3,
+			"StartsWithCurrencySymbol": true
+		},
+		"currencyLocale": 9226,
+		"currencySymbol": "$",
+		"timeZone": "SA Pacific Standard Time"
+	},
+	"allowCancellation": true,
+	"allowEdition": false,
+	"isCheckedIn": false,
+	"marketplace": {
+		"baseURL": "http:\/\/portal.vtexcommerce.com.br\/api\/oms?an=patprimo",
+		"isCertified": null,
+		"name": "patprimo"
+	}
+}
