@@ -271,8 +271,10 @@ class Icommktconnector extends Module
                 //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
                 //List Orders
                 'controller' =>    'oms',
-                'keywords' => array(),
-                'rule' =>        'icommkt/oms/pvt/orders',
+                'keywords' => array(
+                    'id_order' => array('regexp' => '[0-9]+', 'param' => 'id_order'),
+                ),
+                'rule' =>        'icommkt/oms/pvt/orders{/:id_order}',
                 'params' => array(
                     'fc' => 'module',
                     'module' => $this->name
@@ -341,87 +343,260 @@ class Icommktconnector extends Module
         /* Place your code here. */
     }
     
+    public function getSingleOrder($id_order){
+        $order = $this->getOrderInformation($id_order);
+        $cart_rules = $this->getCartRules($id_order);
+
+
+        if(!$order)
+            exit('order not found');
+
+        $data = array(
+            'orderId' => $order['id_order'],
+            'sequence' => $order['id_order'],
+            'marketPlaceOrderId' => $order['id_order'],            
+            'marketplaceServicesEndpoint' => null,
+            'sellerOrderId' => $order['id_order'],
+            'origin' => null,
+            'affiliateId' => null,
+            'salesChannel' => 1,
+            'merchantName' => null,
+            'status' => $order['state_name'],
+            'statusDescription' => $order['state_name'],
+            'value' => $order['total_paid'],
+            'creationDate' => gmdate("c", $order['date_add']),
+            'lastChange' => gmdate("c", $order['date_upd']),
+            'orderGroup' => null,
+            'totals' => array(
+                array(
+                    'id' => 'Items',
+                    'name' => 'Total de los items',
+                    'values' => $order['total_products_wt'],
+                ),
+                array(
+                    'id' => 'Discounts',
+                    'name' => 'Total de descuentos',
+                    'values' => $order['total_discounts_tax_incl'],
+                ),
+                array(
+                    'id' => 'Shipping',
+                    'name' => 'Costo total del envío',
+                    'values' => $order['total_shipping_tax_incl'],
+                ),
+            ),
+            'items' => $this->formatProductList($order['id_order'], true),
+            'marketplaceItems' => array(),
+            'clientProfileData' => array(
+                'id' => $order['id_customer'],
+                'email' => $order['email'],
+                'firstName' => $order['firstname'],
+                'lastName' => $order['lastname'],
+                'documentType' => 'nif',
+                'document' => $order['dni'],
+                'phone' => ($order['phone'] != '' ? $order['phone'] : $order['phone_mobile']),
+                'corporateName' => $order['company'],
+                'tradeName' => null,
+                'corporateDocument' => null,
+                'stateInscription' => null,
+                'corporatePhone' => null,
+                'isCorporate' => false,
+                'userProfileId' => $order['id_customer'],
+                'customerClass' => null,
+
+            ),
+            'giftRegistryData' => null,
+            'marketingData' => array(
+                'id' => 'marketingData',
+                'utmSource' => $cart_rules[0]['name'],
+                'utmPartner' => null,
+                'utmMedium' => '',
+                'utmCampaign' => '',
+                'coupon' => $cart_rules[0]['code'],
+                'utmiCampaign' => '',
+                'utmipage' => '',
+                'utmiPart' => '',
+                'marketingTags' => array(),
+            ),
+            'ratesAndBenefitsData' => array(
+                'id' => 'ratesAndBenefitsData',
+                'rateAndBenefitsIdentifiers' => array(),
+            ),
+            'shippingData' => array(
+                'id' => 'shippingData',
+                'address' => array(
+                    'addressType' => "residential",
+                    'receiverName' => $order['firstname'].' '.$order['lastname'],
+                    'addressId' => $order['id_address'],
+                    'postalCode' => $order['postcode'],
+                    'city' => $order['city'],
+                    'state' => State::getNameById($order['id_state']),
+                    'country' => Country::getNameById($order['id_lang'], $order['id_state']),
+                    'street' => $order['address1'],
+                    'number' => null,
+                    'neighborhood' => null,
+                    'complement' => $order['address2'],
+                    'reference' => null,
+                    'geoCoordinates' => array(),
+                ),
+                'logisticsInfo' => $this->getLogisticInfo($id_order),
+                'trackingHints' => null,
+                'selectedAddresses' => array(
+                    array(
+                        'addressId' => $order['id_address_delivery'],
+                        'addressType' => "residential",
+                        'receiverName' => $order['firstname'].' '.$order['lastname'],
+                        'street' => $order['address1'],
+                        'number' => null,
+                        'complement' => $order['address2'],
+                        'neighborhood' => null,
+                        'postalCode' => $order['postcode'],
+                        'city' => $order['city'],
+                        'state' => State::getNameById($order['id_state']),
+                        'country' => Country::getNameById($order['id_lang'], $order['id_state']),
+                        'reference' => null,
+                        'geoCoordinates' => array(),
+                    ),
+                ),
+            ),
+            'paymentData' => array(
+                'transactions' => array(
+                    array(
+                        'isActive' => true,
+                        'transactionId' => "409E420B030E4E33945A1B8E02DF9BB9",
+                        'merchantName' => "PATPRIMO",
+                        'payments' => $this->getDataPayment($order['reference']),
+                    ),
+                ),
+            ),
+            'packageAttachment' => array(
+                'packages' => array(),
+            ),
+            'sellers' => array(
+                array(
+                    'id' => "1",
+                    'name' => "PatPrimo",
+                    'logo' => "",
+                ),
+            ),
+            'callCenterOperatorData' => null,
+            'followUpEmail' => "cead99a91b104f5c871e888f28a1e07e@ct.vtex.com.br",
+            'lastMessage' => null,
+            'hostname' => "patprimo",
+            'changesAttachment' => null,
+            'openTextField' => null,
+            'roundingError' => 0,
+            'orderFormId' => "0b0f14fad79d428d934a82c5a1ccab2e",
+            'commercialConditionData' => null,
+            'isCompleted' => true,
+            'customData' => null,
+            'storePreferencesData' => array(
+                'countryCode' => "COL",
+                'currencyCode' => "COP",
+                'currencyFormatInfo' => array(
+                    'CurrencyDecimalDigits' => 2,
+                    'CurrencyDecimalSeparator' => ",",
+                    'CurrencyGroupSeparator' => ".",
+                    'CurrencyGroupSize' => 3,
+                    'StartsWithCurrencySymbol' => true,
+                ),
+                'currencyLocale' => 9226,
+                'currencySymbol' => "$",
+                'timeZone' => "SA Pacific Standard Time",
+            ),
+            'allowCancellation' => true,
+            'allowEdition' => false,
+            'isCheckedIn' => false,
+            'marketplace' => array(
+                'baseURL' => "http:\/\/portal.vtexcommerce.com.br\/api\/oms?an=patprimo",
+                'isCertified' => null,
+                'name' => "patprimo",
+            ),
+        );
+        exit(json_encode($data));
+
+    }
+
     public function getOrders(){
-        $orders = $this->getOrdersWithInformations();
+        $orderField = null;
+        $orderType = null;
+        $limit = null;
+        $page = null;
+
+        if($orderBy = Tools::getValue('orderBy')){
+            $field = explode(',', $orderBy)[0];            
+
+            switch ($field) {
+                case 'orderId':
+                    $orderField = 'id_order';
+                    break;
+                case 'totalValue':
+                    $orderField = 'total_paid';
+                    break;
+                case 'creationDate':
+                    $orderField = 'date_add';
+                    break;
+                default:
+                    $orderField = null;
+                    break;
+            }
+
+            $type = explode(',', $orderBy)[1];
+            if($type == 'asc' || $type == 'desc')
+                $orderType = $type;
+        }
+
+
+        $orders = $this->getOrdersWithInformations(limit, page, $orderField, $orderType);
         $ordersFormatVtex = array();
         foreach($orders as &$order){
-            $order['product_list'] = OrderDetail::getList($order['id_order']);
-            $ordersFormatVtex = $this->formatListOrder($order);
+            $ordersFormatVtex[] = $this->formatListOrder($order);
         }
+        
+        exit(json_encode($ordersFormatVtex));
         ddd($orders[0]);
     }
     
+
     public function formatListOrder($order){
         $data = array(
             'orderId' => $order['id_order'],
             'creationDate' => gmdate("c", $order['date_add']),
-            'clientName' => $order['firstname'].' '.$order['lastname']
+            'clientName' => $order['firstname'].' '.$order['lastname'],
+            'totalValue' => $order['total_paid'],
+            'paymentNames' => $order['payment'],
+            'status' => $order['state_name'],
+            'statusDescription' => $order['state_name'],
+            'marketPlaceOrderId' => $order['id_order'],
+            'sequence' => $order['id_order'],
+            'salesChannel' => 1,
+            'affiliateId' => null,
+            'origin' => null,
+            'workflowInErrorState' => null,
+            'workflowInRetry' => null,
+            'lastMessageUnread' => null,
+            'ShippingEstimatedDate' => 'undefined',
+            'orderIsComplete' => ($order['valid'] ? true : false),
+            'listId' => null,
+            'listType' => null,
+            'authorizedDate' => gmdate("c", $order['date_add']),
+            'callCenterOperatorName' => 'undefined',
+            'items' => $this->formatProductList($order['id_order']),
         );
         
         return $data;
-              /*{
-		"orderId": "$order->",
-		"creationDate": "2018-06-27T05:16:20.0000000+00:00",
-		"clientName": "Luis Morales",
-		"items": [{
-			"seller": "1",
-			"quantity": 1,
-			"description": "Pantaloncillo B\u00f3xer Medio Estampado Azul XL",
-			"ean": "7704863998766",
-			"refId": "44000193-5064-Azul-XL",
-			"id": "2086859",
-			"productId": "2007061",
-			"sellingPrice": 1049400,
-			"price": 1049400
-		}, {
-			"seller": "1",
-			"quantity": 1,
-			"description": "Pantaloncillo B\u00f3xer Medio Estampado Morado XL",
-			"ean": "7704863998889",
-			"refId": "44000193-74924-Morado-XL",
-			"id": "2086865",
-			"productId": "2007061",
-			"sellingPrice": 1049400,
-			"price": 1049400
-		}, {
-			"seller": "1",
-			"quantity": 1,
-			"description": "Pantaloncillo Boxer Estampado Azul Oscuro XL",
-			"ean": "7702218788512",
-			"refId": "44000034-51-XL",
-			"id": "2001743",
-			"productId": "2000045",
-			"sellingPrice": 1049400,
-			"price": 1049400
-		}],
-		"totalValue": 3748200,
-		"paymentNames": "Visa",
-		"status": "handling",
-		"statusDescription": "Preparando Entrega",
-		"marketPlaceOrderId": null,
-		"sequence": "10198287",
-		"salesChannel": "1",
-		"affiliateId": "",
-		"origin": "Marketplace",
-		"workflowInErrorState": false,
-		"workflowInRetry": false,
-		"lastMessageUnread": " PatPrimo HOMBRE MUJER TALLAS 14 - 24 SALE Pedido realizado con \u00e9xito! realizado en: 27\/06\/2018 Hola, Luis \u00a1Gracias por comprar en: www.patp",
-		"ShippingEstimatedDate": "2018-07-04T05:17:07.0000000+00:00",
-		"orderIsComplete": true,
-		"listId": null,
-		"listType": null,
-		"authorizedDate": "2018-06-27T05:17:08.0000000+00:00",
-		"callCenterOperatorName": null
-	}  
-EOF;*/
                 
     }
     
-    public function getOrdersWithInformations($limit = null, Context $context = null)
+    public function getOrdersWithInformations($limit = null, $page = null, $orderField = null, $orderType = null, Context $context = null)
     {
         if (!$context) {
             $context = Context::getContext();
         }
+
+        if(!$page)
+            $n=0;
+        else
+            $n=((int)$page-1)*(int)$limit;
 
         $sql = 'SELECT *, (
 					SELECT osl.`name`
@@ -442,8 +617,214 @@ EOF;*/
                                 LEFT JOIN `'._DB_PREFIX_.'address` ad ON (ad.`id_address` = o.`id_address_delivery`)
 				WHERE 1
 					'.Shop::addSqlRestriction(false, 'o').'
-				ORDER BY o.`date_add` DESC
-				'.((int)$limit ? 'LIMIT 0, '.(int)$limit : '');
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+                ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC').'
+				'.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
+       return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+    }
+
+    public function getOrderInformation($id_order, Context $context = null)
+    {
+        if (!$context) {
+            $context = Context::getContext();
+        }
+
+        $sql = 'SELECT *, (
+                    SELECT osl.`name`
+                    FROM `'._DB_PREFIX_.'order_state_lang` osl
+                    WHERE osl.`id_order_state` = o.`current_state`
+                    AND osl.`id_lang` = '.(int)$context->language->id.'
+                    LIMIT 1
+                ) AS `state_name`,
+                                (
+                    SELECT c.`name`
+                    FROM `'._DB_PREFIX_.'carrier` c
+                    WHERE c.`id_carrier` = o.`id_carrier`
+                    LIMIT 1
+                ) AS `carrier_name`,
+                                o.`date_add` AS `date_add`, o.`date_upd` AS `date_upd`
+                FROM `'._DB_PREFIX_.'orders` o
+                LEFT JOIN `'._DB_PREFIX_.'customer` c ON (c.`id_customer` = o.`id_customer`)
+                                LEFT JOIN `'._DB_PREFIX_.'address` ad ON (ad.`id_address` = o.`id_address_delivery`)
+                WHERE 1
+                    '.Shop::addSqlRestriction(false, 'o').' AND id_order = '.$id_order.'
+                ORDER BY o.`date_add` DESC
+                '.((int)$limit ? 'LIMIT 0, '.(int)$limit : '');
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
+    }
+
+    public function formatProductList($id_order, $extend = false, Context $context = null){
+
+        if (!$context) {
+            $context = Context::getContext();
+        }
+
+        $products = array();
+
+        foreach (OrderDetail::getList($id_order) as $item) {
+            $data = array(
+                'seller' => null,
+                'quantity' => $item['product_quantity'],
+                'description' => $item['product_name'],
+                'ean' => $item['product_ean13'],
+                'refId' => $item['product_reference'],
+                'id' => $item['product_id'],
+                'productId' => $item['product_id'],
+                'sellingPrice' => round($item['unit_price_tax_incl'], 2),
+                'price' => round($item['total_price_tax_incl'], 2),
+            );
+
+            if($extend){
+                $product = new Product($item['product_id'], false, (int)$context->language->id);
+
+                $data_extend = array(
+                    'uniqueId' => $item['product_id'],
+                    'description' => $item['product_name'],
+                    'listPrice' => '???',
+                    'manualPrice' => null,
+                    'priceTags' => array(),
+                    'imageUrl' => $context->link->getImageLink($product->link_rewrite, Image::getCover($item['product_id'])['id_image']),
+                    'detailUrl' => $context->link->getProductLink($item['product_id']),
+                    'components' => array(),
+                    'bundleItems' => array(),
+                    'params' => array(),
+                    'offerings' => array(),
+                    'sellerSku' => $item['product_attribute_id'],
+                    'priceValidUntil' => null,
+                    'commission' => 0,
+                    'tax' => $item['tax_rate'],
+                    'preSaleDate' => null,
+                    'additionalInfo' => array(
+                        'brandName' => $product->manufacturer_name,
+                        'brandId' => $product->id_manufacturer,
+                        'categoriesIds' => implode(',', $product->getCategories()),
+                        'productClusterId' => '',
+                        'commercialConditionId' => "1",
+                        'dimension' => array(
+                            'cubicweight' => 1,
+                            'height' => 1,
+                            'length' => 1,
+                            'weight' => 1,
+                            'width' => 1
+                        ),
+                        'offeringInfo' => null,
+                        'offeringType' => null,
+                        'offeringTypeId' => null,
+                    ),
+                    'measurementUnit' => "un",
+                    'unitMultiplier' => 1,
+                    'isGift' => false,
+                    'shippingPrice' => $item['total_shipping_price_tax_incl'],
+                    'rewardValue' => 0,
+                    'freightCommission' => 0,
+                );
+
+                $data = array_merge($data, $data_extend);
+            }
+
+            $products[] = $data;
+        }
+
+        return $products;
+    }
+
+    public function getLogisticInfo($id_order){
+        $data = array();
+
+        foreach (OrderDetail::getList($id_order) as $key => $item) {
+            $data[] = array(
+                'itemIndex' => $key,
+                'selectedSla' => "Normal",
+                'lockTTL' => "12d",
+                'price' => round($item['unit_price_tax_incl'], 2),
+                'listPrice' => round($item['original_product_price'], 2),
+                'sellingPrice' => round($item['unit_price_tax_incl'], 2),
+                'deliveryWindow' => null,
+                'deliveryCompany' => "Servientrega",
+                'shippingEstimate' => "5bd",
+                'shippingEstimateDate' => "",
+                'slas' => array(
+                    array(
+                        'id' => "Normal",
+                        'name' => "Normal",
+                        'shippingEstimate' => "5bd",
+                        'deliveryWindow' => null,
+                        'price' => 297600,
+                        'deliveryChannel' => "delivery",
+                        'pickupStoreInfo' => array(
+                            'additionalInfo' => null,
+                            'address' => null,
+                            'dockId' => null,
+                            'friendlyName' => null,
+                            'isPickupStore' => false,
+                        ),
+                    ),
+                ),
+                'shipsTo' => array('COL'),
+                'deliveryIds' => array(
+                    array(
+                        'courierId' => "1",
+                        'courierName' => "Servientrega",
+                        'dockId' => "1",
+                        'quantity' => 1,
+                        'warehouseId' => "1_1",
+                    ),
+                ),
+                'deliveryChannel' => 'delivery',
+                'pickupStoreInfo' => array(
+                    'additionalInfo' => null,
+                    'address' => null,
+                    'dockId' => null,
+                    'friendlyName' => null,
+                    'isPickupStore' => false,
+                ),
+                'addressId' => "-1530076290589"
+            );
+        }
+    }
+
+    public function getCartRules($id_order){
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+        SELECT *
+        FROM `'._DB_PREFIX_.'order_cart_rule` ocr
+        LEFT JOIN `'._DB_PREFIX_.'cart_rule` cr ON ocr.id_cart_rule = cr.id_cart_rule
+        WHERE ocr.`id_order` = '.(int)$id_order);
+    }
+
+    public static function getDataPayment($order_reference){
+        $payments = Db::getInstance()->executeS('
+            SELECT *
+            FROM `'._DB_PREFIX_.'order_payment`
+            WHERE `order_reference` = '.(int)$order_reference);
+
+        $data = array();
+
+        foreach ($payments as $value) {
+            $data[] = array(
+                'id' => $value['transaction_id'],
+                'paymentSystem' => "",
+                'paymentSystemName' => $value['card_brand'],
+                'value' => $value['amount'],
+                'installments' => 3,
+                'referenceValue' => $value['transaction_id'],
+                'cardHolder' => $value['card_holder'],
+                'cardNumber' => $value['card_number'],
+                'firstDigits' => "",
+                'lastDigits' => "",
+                'cvv2' => null,
+                'expireMonth' => ($value['card_expiration'] ? substr($value['card_expiration'], 2) : null),
+                'expireYear' => ($value['card_expiration'] ? substr($value['card_expiration'], -2) : null),
+                'url' => null,
+                'giftCardId' => null,
+                'giftCardName' => null,
+                'giftCardCaption' => null,
+                'redemptionCode' => null,
+                'group' => "",
+                'tid' => "",
+                'dueDate' => null,
+                'connectorResponses' => array(),
+            );
+        }
+
+        return $data;
     }
 }
