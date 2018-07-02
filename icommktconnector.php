@@ -364,8 +364,8 @@ class Icommktconnector extends Module
             'status' => $order['state_name'],
             'statusDescription' => $order['state_name'],
             'value' => $order['total_paid'],
-            'creationDate' => gmdate("c", $order['date_add']),
-            'lastChange' => gmdate("c", $order['date_upd']),
+            'creationDate' => gmdate("c", strtotime($order['date_add'])),
+            'lastChange' => gmdate("c", strtotime($order['date_upd'])),
             'orderGroup' => null,
             'totals' => array(
                 array(
@@ -462,8 +462,8 @@ class Icommktconnector extends Module
                 'transactions' => array(
                     array(
                         'isActive' => true,
-                        'transactionId' => "409E420B030E4E33945A1B8E02DF9BB9",
-                        'merchantName' => "PATPRIMO",
+                        'transactionId' => "",
+                        'merchantName' => Configuration::get('PS_SHOP_NAME'),
                         'payments' => $this->getDataPayment($order['reference']),
                     ),
                 ),
@@ -473,25 +473,25 @@ class Icommktconnector extends Module
             ),
             'sellers' => array(
                 array(
-                    'id' => "1",
-                    'name' => "PatPrimo",
+                    'id' => "",
+                    'name' => "",
                     'logo' => "",
                 ),
             ),
             'callCenterOperatorData' => null,
-            'followUpEmail' => "cead99a91b104f5c871e888f28a1e07e@ct.vtex.com.br",
+            'followUpEmail' => "",
             'lastMessage' => null,
-            'hostname' => "patprimo",
+            'hostname' => Configuration::get('PS_SHOP_NAME'),
             'changesAttachment' => null,
             'openTextField' => null,
             'roundingError' => 0,
-            'orderFormId' => "0b0f14fad79d428d934a82c5a1ccab2e",
+            'orderFormId' => "",
             'commercialConditionData' => null,
             'isCompleted' => true,
             'customData' => null,
             'storePreferencesData' => array(
-                'countryCode' => "COL",
-                'currencyCode' => "COP",
+                'countryCode' => Country::getIsoById(Configuration::get('PS_SHOP_COUNTRY_ID')),
+                'currencyCode' => Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'))['iso_code'],
                 'currencyFormatInfo' => array(
                     'CurrencyDecimalDigits' => 2,
                     'CurrencyDecimalSeparator' => ",",
@@ -499,19 +499,20 @@ class Icommktconnector extends Module
                     'CurrencyGroupSize' => 3,
                     'StartsWithCurrencySymbol' => true,
                 ),
-                'currencyLocale' => 9226,
-                'currencySymbol' => "$",
-                'timeZone' => "SA Pacific Standard Time",
+                'currencyLocale' => null,
+                'currencySymbol' => Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'))['sign'],
+                'timeZone' => Configuration::get('PS_TIMEZONE'),
             ),
             'allowCancellation' => true,
             'allowEdition' => false,
             'isCheckedIn' => false,
             'marketplace' => array(
-                'baseURL' => "http:\/\/portal.vtexcommerce.com.br\/api\/oms?an=patprimo",
+                'baseURL' => Configuration::get('PS_SHOP_DOMAIN'),
                 'isCertified' => null,
-                'name' => "patprimo",
+                'name' => Configuration::get('PS_SHOP_NAME'),
             ),
         );
+
         exit(json_encode($data));
 
     }
@@ -521,6 +522,7 @@ class Icommktconnector extends Module
         $orderType = null;
         $limit = null;
         $page = null;
+        $date_range = null;
 
         if($orderBy = Tools::getValue('orderBy')){
             $field = explode(',', $orderBy)[0];            
@@ -545,24 +547,31 @@ class Icommktconnector extends Module
                 $orderType = $type;
         }
 
+        if($f_creationDate = Tools::getValue('f_creationDate')){
+            preg_match('/\[(.*?)\]/s', $f_creationDate, $creationDate);
+            $creationDate = explode('TO', $creationDate[1]);
+            if((bool)strtotime(trim($creationDate[0])) && (bool)strtotime(trim($creationDate[1]))){
+                $date_range['from'] = date('"Y-m-d H:i:s"', strtotime(trim($creationDate[0])));
+                $date_range['to'] = date('"Y-m-d H:i:s"', strtotime(trim($creationDate[1])));
+            }
+        }
 
-        $orders = $this->getOrdersWithInformations(limit, page, $orderField, $orderType);
+        $orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range);
         $ordersFormatVtex = array();
         foreach($orders as &$order){
             $ordersFormatVtex[] = $this->formatListOrder($order);
         }
         
         exit(json_encode($ordersFormatVtex));
-        ddd($orders[0]);
     }
     
 
     public function formatListOrder($order){
         $data = array(
             'orderId' => $order['id_order'],
-            'creationDate' => gmdate("c", $order['date_add']),
+            'creationDate' => gmdate("c", strtotime($order['date_add'])),
             'clientName' => $order['firstname'].' '.$order['lastname'],
-            'totalValue' => $order['total_paid'],
+            'totalValue' => round($order['total_paid'],2),
             'paymentNames' => $order['payment'],
             'status' => $order['state_name'],
             'statusDescription' => $order['state_name'],
@@ -578,7 +587,7 @@ class Icommktconnector extends Module
             'orderIsComplete' => ($order['valid'] ? true : false),
             'listId' => null,
             'listType' => null,
-            'authorizedDate' => gmdate("c", $order['date_add']),
+            'authorizedDate' => gmdate("c", strtotime($order['date_add'])),
             'callCenterOperatorName' => 'undefined',
             'items' => $this->formatProductList($order['id_order']),
         );
@@ -587,7 +596,7 @@ class Icommktconnector extends Module
                 
     }
     
-    public function getOrdersWithInformations($limit = null, $page = null, $orderField = null, $orderType = null, Context $context = null)
+    public function getOrdersWithInformations($limit = null, $page = null, $orderField = null, $orderType = null, $date_range = null, Context $context = null)
     {
         if (!$context) {
             $context = Context::getContext();
@@ -597,6 +606,11 @@ class Icommktconnector extends Module
             $n=0;
         else
             $n=((int)$page-1)*(int)$limit;
+
+        if(count($date_range))
+            $where_date = ' AND o.date_add BETWEEN '.$date_range['from'].' AND '.$date_range['to'];
+        else
+            $where_date = '';
 
         $sql = 'SELECT *, (
 					SELECT osl.`name`
@@ -617,6 +631,7 @@ class Icommktconnector extends Module
                                 LEFT JOIN `'._DB_PREFIX_.'address` ad ON (ad.`id_address` = o.`id_address_delivery`)
 				WHERE 1
 					'.Shop::addSqlRestriction(false, 'o').'
+                    '.$where_date.'
                 ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC').'
 				'.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
@@ -679,7 +694,7 @@ class Icommktconnector extends Module
                 $data_extend = array(
                     'uniqueId' => $item['product_id'],
                     'description' => $item['product_name'],
-                    'listPrice' => '???',
+                    'listPrice' => round($item['original_product_price'], 2),
                     'manualPrice' => null,
                     'priceTags' => array(),
                     'imageUrl' => $context->link->getImageLink($product->link_rewrite, Image::getCover($item['product_id'])['id_image']),
@@ -713,7 +728,7 @@ class Icommktconnector extends Module
                     'measurementUnit' => "un",
                     'unitMultiplier' => 1,
                     'isGift' => false,
-                    'shippingPrice' => $item['total_shipping_price_tax_incl'],
+                    'shippingPrice' => round($item['total_shipping_price_tax_incl'], 2),
                     'rewardValue' => 0,
                     'freightCommission' => 0,
                 );
@@ -739,16 +754,16 @@ class Icommktconnector extends Module
                 'listPrice' => round($item['original_product_price'], 2),
                 'sellingPrice' => round($item['unit_price_tax_incl'], 2),
                 'deliveryWindow' => null,
-                'deliveryCompany' => "Servientrega",
-                'shippingEstimate' => "5bd",
+                'deliveryCompany' => "",
+                'shippingEstimate' => "",
                 'shippingEstimateDate' => "",
                 'slas' => array(
                     array(
                         'id' => "Normal",
                         'name' => "Normal",
-                        'shippingEstimate' => "5bd",
+                        'shippingEstimate' => "",
                         'deliveryWindow' => null,
-                        'price' => 297600,
+                        'price' => round($item['unit_price_tax_incl'], 2),
                         'deliveryChannel' => "delivery",
                         'pickupStoreInfo' => array(
                             'additionalInfo' => null,
@@ -759,11 +774,10 @@ class Icommktconnector extends Module
                         ),
                     ),
                 ),
-                'shipsTo' => array('COL'),
                 'deliveryIds' => array(
                     array(
                         'courierId' => "1",
-                        'courierName' => "Servientrega",
+                        'courierName' => "",
                         'dockId' => "1",
                         'quantity' => 1,
                         'warehouseId' => "1_1",
@@ -777,7 +791,7 @@ class Icommktconnector extends Module
                     'friendlyName' => null,
                     'isPickupStore' => false,
                 ),
-                'addressId' => "-1530076290589"
+                'addressId' => ""
             );
         }
     }
