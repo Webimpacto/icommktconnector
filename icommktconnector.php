@@ -524,6 +524,12 @@ class Icommktconnector extends Module
         $page = null;
         $date_range = null;
 
+        if(Tools::getValue('page') && is_numeric(Tools::getValue('page')))
+            $page = Tools::getValue('page');
+
+        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('page')))
+            $limit = Tools::getValue('per_page');
+
         if($orderBy = Tools::getValue('orderBy')){
             $field = explode(',', $orderBy)[0];            
 
