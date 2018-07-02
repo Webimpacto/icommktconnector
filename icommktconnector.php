@@ -699,6 +699,7 @@ class Icommktconnector extends Module
                     'priceTags' => array(),
                     'imageUrl' => $context->link->getImageLink($product->link_rewrite, Image::getCover($item['product_id'])['id_image']),
                     'detailUrl' => $context->link->getProductLink($item['product_id']),
+                    'categories' => array_column(Product::getProductCategoriesFull($item['product_id']), 'name'),
                     'components' => array(),
                     'bundleItems' => array(),
                     'params' => array(),
