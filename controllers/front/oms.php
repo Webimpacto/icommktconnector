@@ -49,7 +49,7 @@ class IcommktconnectorOMSModuleFrontController extends ModuleFrontController
     {
 
         $module = Module::getInstanceByName('icommktconnector');
-
+        $module->authorizeRequest();   
         if($id_order = Tools::getValue('id_order')){
             $module->getSingleOrder($id_order);
         } else {

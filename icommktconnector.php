@@ -369,6 +369,7 @@ class Icommktconnector extends Module
         if(!$order)
             exit('order not found');
 
+        $currency = Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'));
         $data = array(
             'orderId' => $order['id_order'],
             'sequence' => $order['id_order'],
@@ -509,7 +510,7 @@ class Icommktconnector extends Module
             'customData' => null,
             'storePreferencesData' => array(
                 'countryCode' => Country::getIsoById(Configuration::get('PS_SHOP_COUNTRY_ID')),
-                'currencyCode' => Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'))['iso_code'],
+                'currencyCode' => $currency['iso_code'],
                 'currencyFormatInfo' => array(
                     'CurrencyDecimalDigits' => 2,
                     'CurrencyDecimalSeparator' => ",",
@@ -518,7 +519,7 @@ class Icommktconnector extends Module
                     'StartsWithCurrencySymbol' => true,
                 ),
                 'currencyLocale' => null,
-                'currencySymbol' => Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'))['sign'],
+                'currencySymbol' => $currency['sign'],
                 'timeZone' => Configuration::get('PS_TIMEZONE'),
             ),
             'allowCancellation' => true,
@@ -549,7 +550,8 @@ class Icommktconnector extends Module
             $limit = (int)Tools::getValue('per_page');
 
         if($orderBy = Tools::getValue('orderBy')){
-            $field = explode(',', $orderBy)[0];            
+            $orderParams = explode(',', $orderBy);
+            $field = $orderParams[0];
 
             switch ($field) {
                 case 'orderId':
@@ -566,7 +568,7 @@ class Icommktconnector extends Module
                     break;
             }
 
-            $type = explode(',', $orderBy)[1];
+            $type = $orderParams[1];
             if($type == 'asc' || $type == 'desc')
                 $orderType = $type;
         }
@@ -765,13 +767,14 @@ class Icommktconnector extends Module
             if($extend){
                 $product = new Product($item['product_id'], false, (int)$context->language->id);
 
+                $image = Image::getCover($item['product_id']);
                 $data_extend = array(
                     'uniqueId' => $item['product_id'],
                     'description' => $item['product_name'],
                     'listPrice' => round($item['original_product_price'], 2),
                     'manualPrice' => null,
                     'priceTags' => array(),
-                    'imageUrl' => $context->link->getImageLink($product->link_rewrite, Image::getCover($item['product_id'])['id_image']),
+                    'imageUrl' => ((isset($image['id_image']))?$context->link->getImageLink($product->link_rewrite, $image['id_image']):'not_cover_image'),
                     'detailUrl' => $context->link->getProductLink($item['product_id']),
                     'categories' => array_column(Product::getProductCategoriesFull($item['product_id']), 'name'),
                     'components' => array(),
