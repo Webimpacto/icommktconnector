@@ -257,7 +257,7 @@ class Icommktconnector extends Module
         $apiKey = Configuration::get('ICOMMKT_APPKEY',null,$this->context_id_shop_group,  $this->context_id_shop);
         $apiToken = Configuration::get('ICOMMKT_APPTOKEN',null,$this->context_id_shop_group,  $this->context_id_shop);
 
-        if(empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken || $_SERVER['CONTENT_TYPE'] != 'application/json'){
+        if(empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken){
             $this->setError('Bad credentials', 403,  json_encode($headers),false);
             header("HTTP/1.1 403 Forbidden");
             die();
