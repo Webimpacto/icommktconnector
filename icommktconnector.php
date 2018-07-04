@@ -212,6 +212,19 @@ class Icommktconnector extends Module
     }
     
     public function authorizeRequest(){
+        if (!function_exists('getallheaders')) {
+            function getallheaders()
+            {
+                $headers = '';
+                foreach ($_SERVER as $name => $value) {
+                    if (substr($name, 0, 5) == 'HTTP_') {
+                        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                    }
+                }
+                return $headers;
+            }
+        }
+
         $headers = getallheaders();
         $headerKey = '';
         $headerToken = '';
@@ -224,8 +237,13 @@ class Icommktconnector extends Module
             }
         }
         if(!empty($headerKey) && !empty($headerToken)){
-            $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
-                    . "AND value='%s' AND id_shop IS NOT NULL",pSQL($headerKey));
+            if(Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE') && Shop::getTotalShops() > 1)
+                $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
+                        . "AND value='%s' AND id_shop IS NOT NULL",pSQL($headerKey));
+            else
+                $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
+                        . "AND value='%s' AND id_shop IS NULL",pSQL($headerKey));
+
             $result = Db::getInstance()->getRow($query);
             if($result){
                 $this->context_id_shop = $result['id_shop'];
@@ -238,8 +256,8 @@ class Icommktconnector extends Module
         }
         $apiKey = Configuration::get('ICOMMKT_APPKEY',null,$this->context_id_shop_group,  $this->context_id_shop);
         $apiToken = Configuration::get('ICOMMKT_APPTOKEN',null,$this->context_id_shop_group,  $this->context_id_shop);
-        
-        if(empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken){
+
+        if(empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken || $_SERVER['CONTENT_TYPE'] != 'application/json'){
             $this->setError('Bad credentials', 403,  json_encode($headers),false);
             header("HTTP/1.1 403 Forbidden");
             die();
@@ -520,15 +538,15 @@ class Icommktconnector extends Module
     public function getOrders(){
         $orderField = null;
         $orderType = null;
-        $limit = null;
-        $page = null;
+        $limit = 1;
+        $page = 1;
         $date_range = null;
 
         if(Tools::getValue('page') && is_numeric(Tools::getValue('page')))
-            $page = Tools::getValue('page');
+            $page = (int)Tools::getValue('page');
 
         if(Tools::getValue('per_page') && is_numeric(Tools::getValue('page')))
-            $limit = Tools::getValue('per_page');
+            $limit = (int)Tools::getValue('per_page');
 
         if($orderBy = Tools::getValue('orderBy')){
             $field = explode(',', $orderBy)[0];            
@@ -562,12 +580,49 @@ class Icommktconnector extends Module
             }
         }
 
-        $orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range);
+        $data_orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range);
+
         $ordersFormatVtex = array();
-        foreach($orders as &$order){
-            $ordersFormatVtex[] = $this->formatListOrder($order);
+        foreach($data_orders['orders'] as &$order){
+            $ordersFormatVtex['list'][] = $this->formatListOrder($order);
         }
         
+        if(count($ordersFormatVtex['list'])){
+            $ordersFormatVtex['facets'] = array();
+            $ordersFormatVtex['paging'] = array(
+                'total' => (int)$data_orders['count'],
+                'pages' => ceil($data_orders['count'] / $limit),
+                'currentPage' => $page,
+                'perPage' => $limit,
+            );
+            $ordersFormatVtex['stats'] = array(
+                'stats' => array(
+                    'totalValue' => array(
+                        'Count' => (int)$data_orders['count'],
+                        'Max' => 0,
+                        'Mean' => 0,
+                        'Min' => 0,
+                        'Missing' => 0,
+                        'StdDev' => 0,
+                        'Sum' => 0,
+                        'SumOfSquares' => 0,
+                        'Facets' => array(),
+                    ),
+                    'totalItems' => array(
+                        'Count' => (int)$data_orders['count'],
+                        'Max' => 0,
+                        'Mean' => 0,
+                        'Min' => 0,
+                        'Missing' => 0,
+                        'StdDev' => 0,
+                        'Sum' => 0,
+                        'SumOfSquares' => 0,
+                        'Facets' => array(),
+                    ),
+                ),                
+            );
+        }
+
         exit(json_encode($ordersFormatVtex));
     }
     
@@ -640,7 +695,20 @@ class Icommktconnector extends Module
                     '.$where_date.'
                 ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC').'
 				'.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
-       return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
+        $result['orders'] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
+
+        $sql = 'SELECT count(id_order)
+                FROM `'._DB_PREFIX_.'orders` o
+                WHERE 1
+                    '.Shop::addSqlRestriction(false, 'o').'
+                    '.$where_date.'
+                ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC');
+
+        $result['count'] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
+
+       return $result;
     }
 
     public function getOrderInformation($id_order, Context $context = null)
