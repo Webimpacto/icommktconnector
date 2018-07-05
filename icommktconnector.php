@@ -298,6 +298,19 @@ class Icommktconnector extends Module
                     'module' => $this->name
                 ),
             ),
+            'master_data_search' => array(
+                //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
+                //List Orders
+                'controller' =>    'masterdata',
+                'keywords' => array(
+                    'entity_code' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'entity_code'),
+                ),
+                'rule' =>        'icommkt/dataentities/{entity_code}/search',
+                'params' => array(
+                    'fc' => 'module',
+                    'module' => $this->name
+                ),
+            ),
             /*'authorization' => array(
                 'controller' =>    'authorization',
                 'rule' =>        'authorization/{key}',
@@ -917,6 +930,89 @@ class Icommktconnector extends Module
             );
         }
 
+        return $data;
+    }
+    
+    public function getClients(){
+        $customers = $this->getCustomers();
+        $prepared_data = array();
+        $langs = Language::getLanguages();
+		
+        foreach($customers as $customer){
+            $customer['address_data_object'] = $this->getAddressCustomer($customer['id_customer']);
+            $customer['address_company_object'] = $this->getAddressCompanyCustomer($customer['id_customer']);
+            $customer['localeDefault'] = $langs[$customer['id_lang']]['iso_code'];
+            $prepared_data[] = $this->formatCustomerDataToVTEX($customer);
+        }
+        die(json_encode($prepared_data));
+    }
+    
+    public function getCustomers($only_active = false){
+        $where_params = Tools::getValue('_where');
+        if(!$where_params || strpos($where_params, 'lastInteractionIn') === false
+                || strpos($where_params, 'createdIn') === false){
+            die('no "where" parameteror missing lastInteractionIn/createdIn on where clausule');
+        }
+        
+        $where_params = str_replace('lastInteractionIn between ','date_upd between \'',$where_params);
+        $where_params = str_replace('createdIn between ','date_add between \'',$where_params);
+        $where_params = str_replace(' AND ','\' AND \'',$where_params);
+        $where_params = str_replace(')','\')',$where_params);
+        $sql = 'SELECT *
+                FROM `'._DB_PREFIX_.'customer`
+                WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
+                ($only_active ? ' AND `active` = 1' : '').'
+                '.($where_params ? ' AND '.$where_params : '').'    
+                ORDER BY `date_add` ASC';
+        return Db::getInstance()->executeS($sql);
+    }
+    
+    public function getAddressCustomer($id_customer, $active = true){
+        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
+            SELECT *
+            FROM `'._DB_PREFIX_.'address`
+            WHERE `id_customer` = '.(int)$id_customer.' AND `deleted` = 0'.($active ? ' AND `active` = 1' : '')
+        );
+        return $result;
+    }
+    
+    public function getAddressCompanyCustomer($id_customer, $active = true){
+        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
+            SELECT *
+            FROM `'._DB_PREFIX_.'address`
+            WHERE `id_customer` = '.(int)$id_customer.' '
+                . "AND company <> '' "
+                . 'AND `deleted` = 0'.($active ? ' AND `active` = 1' : '')
+        );
+        return $result;
+    }
+    
+    public function formatCustomerDataToVTEX($customer){
+        $data = array(
+            'email' => $customer['email'],
+            'approved' => $customer['active'],
+            'attach' => null,
+            'birthDate' => $customer['birthday'],
+            'firstName' => $customer['firstname'],
+            'gender' => $customer['id_gender'],
+            'isNewsletterOptIn' => $customer['newsletter'],
+            'lastName' => $customer['lastname'],
+            'localeDefault' => $customer['localeDefault'],
+            'nickName' => null,
+            'tradeName' => null,
+            'userId' => $customer['id_customer']
+        );
+        $data += array(
+            'phone' => (($customer['address_data_object'])?$customer['address_data_object']['phone_mobile']:null),
+            'homePhone' => (($customer['address_data_object'])?$customer['address_data_object']['phone']:null),
+            'document' => (($customer['address_data_object'])?$customer['address_data_object']['dni']:null),
+            'documentType' => (($customer['address_data_object'])?($customer['address_data_object']['dni']?'dni':null):null),
+        );
+        $data += array(
+            'businessPhone' => (($customer['address_company_object'])?$customer['address_company_object']['phone']:null),
+            'corporateName' => (($customer['address_company_object'])?$customer['address_company_object']['company']:null),
+            'isCorporate' => (($customer['address_company_object'])?($customer['address_company_object']['company']?1:null):null),
+        );
         return $data;
     }
 }
