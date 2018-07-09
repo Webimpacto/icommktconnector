@@ -285,6 +285,18 @@ class Icommktconnector extends Module
     public function hookModuleRoutes($params)
     {
         return array(
+            'oms_list_status' => array(
+                //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
+                //List Orders
+                'controller' =>    'oms',
+                'keywords' => array(
+                ),
+                'rule' =>        'icommkt/oms/pvt/status_list',
+                'params' => array(
+                    'fc' => 'module',
+                    'module' => $this->name
+                ),
+            ),
             'oms_list_orders' => array(
                 //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
                 //List Orders
@@ -771,7 +783,7 @@ class Icommktconnector extends Module
                 'description' => $item['product_name'],
                 'ean' => $item['product_ean13'],
                 'refId' => $item['product_reference'],
-                'id' => $item['product_id'],
+                'id' => (empty($item['product_attribute_id'])?$item['product_id']:$item['product_attribute_id']),
                 'productId' => $item['product_id'],
                 'sellingPrice' => round($item['unit_price_tax_incl'], 2),
                 'price' => round($item['total_price_tax_incl'], 2),
@@ -1014,5 +1026,13 @@ class Icommktconnector extends Module
             'isCorporate' => (($customer['address_company_object'])?($customer['address_company_object']['company']?1:null):null),
         );
         return $data;
+    }
+    
+    public function getStatusList(Context $context = null){
+        if (!$context) {
+            $context = Context::getContext();
+        }
+        $orderStatus = OrderState::getOrderStates((int)$context->language->id);
+        exit(json_encode($orderStatus));
     }
 }
