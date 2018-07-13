@@ -1,27 +1,17 @@
 <?php
 /**
-* 2007-2018 PrestaShop
-*
 * NOTICE OF LICENSE
 *
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
+* This file is licenced under the Software License Agreement.
+* With the purchase or the installation of the software in your application
+* you accept the licence agreement.
 *
-* DISCLAIMER
+* You must not modify, adapt or create derivative works of this source code
 *
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
+* @author    Icommkt
+* @copyright Icommkt
+* @license   GPLv3
 *
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2018 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
 */
 
 if (!defined('_PS_VERSION_')) {
@@ -51,22 +41,10 @@ class Icommktconnector extends Module
         $this->description = $this->l('Enabled API service to connect to ICOMMKT service');
     }
 
-    /**
-     * Don't forget to create update methods if needed:
-     * http://doc.prestashop.com/display/PS16/Enabling+the+Auto-Update
-     */
     public function install()
     {
-
         return parent::install() &&
-            //$this->registerHook('header') &&
-            //$this->registerHook('backOfficeHeader') &&
-            //$this->registerHook('actionOrderStatusPostUpdate') &&
-            //$this->registerHook('actionOrderStatusUpdate') &&
-            //$this->registerHook('actionValidateOrder') &&
-            //$this->registerHook('displayAdminOrderContentOrder') &&
-            $this->registerHook('moduleRoutes') &&
-            $this->registerHook('displayAdminOrderTabOrder');
+            $this->registerHook('moduleRoutes');
     }
 
     public function uninstall()
@@ -180,26 +158,6 @@ class Icommktconnector extends Module
             Configuration::updateValue($key, Tools::getValue($key));
         }
     }
-
-    /**
-    * Add the CSS & JavaScript files you want to be loaded in the BO.
-    */
-    public function hookBackOfficeHeader()
-    {
-        if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
-        }
-    }
-
-    /**
-     * Add the CSS & JavaScript files you want to be added on the FO.
-     */
-    public function hookHeader()
-    {
-        $this->context->controller->addJS($this->_path.'/views/js/front.js');
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-    }
     
     public function getApiBodyRequest(){
         $input_xml = null;
@@ -237,19 +195,26 @@ class Icommktconnector extends Module
             }
         }
         if(!empty($headerKey) && !empty($headerToken)){
-            if(Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE') && Shop::getTotalShops() > 1)
-                $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
-                        . "AND value='%s' AND id_shop IS NOT NULL",pSQL($headerKey));
-            else
-                $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
-                        . "AND value='%s' AND id_shop IS NULL",pSQL($headerKey));
+            
+            $shopCondition = 'id_shop IS NULL';
+            if (Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE') && Shop::getTotalShops() > 1) {
+                $shopCondition = 'id_shop IS NOT NULL';
+            }
+                
+            $query = sprintf("SELECT * FROM "._DB_PREFIX_."configuration WHERE name='ICOMMKT_APPKEY' "
+                        . "AND value='%s' AND ".$shopCondition,pSQL($headerKey));
 
             $result = Db::getInstance()->getRow($query);
             if($result){
                 $this->context_id_shop = $result['id_shop'];
                 $this->context_id_shop_group = $result['id_shop_group'];
             }else{
-                $this->setError('Cannot find store for ICOMMKT_APPKEY - '.$headerKey, 400,  json_encode($headers),false);
+                $this->setError(
+                    'Cannot find store for ICOMMKT_APPKEY - '.$headerKey,
+                    400,
+                    json_encode($headers),
+                    false
+                );
                 header("HTTP/1.1 400 Forbidden");
                 die();
             }
@@ -286,7 +251,6 @@ class Icommktconnector extends Module
     {
         return array(
             'oms_list_status' => array(
-                //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
                 //List Orders
                 'controller' =>    'oms',
                 'keywords' => array(
@@ -298,7 +262,6 @@ class Icommktconnector extends Module
                 ),
             ),
             'oms_list_orders' => array(
-                //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
                 //List Orders
                 'controller' =>    'oms',
                 'keywords' => array(
@@ -311,7 +274,6 @@ class Icommktconnector extends Module
                 ),
             ),
             'master_data_search' => array(
-                //https://documenter.getpostman.com/view/487146/vtex-oms-api/6tjSKqi#209cb0dd-4877-4db8-a372-95173f49be07
                 //List Orders
                 'controller' =>    'masterdata',
                 'keywords' => array(
@@ -323,67 +285,7 @@ class Icommktconnector extends Module
                     'module' => $this->name
                 ),
             ),
-            /*'authorization' => array(
-                'controller' =>    'authorization',
-                'rule' =>        'authorization/{key}',
-                'keywords' => array(
-                    'key' =>        array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'key')
-                ),
-                'params' => array(
-                    'fc' => 'module',
-                    'module' => $this->name
-                ),
-            ),
-            'transactions' => array(
-                'controller' =>    'transactions',
-                'rule' =>        'transactions/{transactionId}/payments/{paymentId}/return',
-                'keywords' => array(
-                    'transactionId' =>        array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'transactionId'),
-                    'paymentId' =>            array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'paymentId'),
-                ),
-                'params' => array(
-                    'fc' => 'module',
-                    'module' => $this->name
-                ),
-            ),
-            'paymentredsys' => array(
-                'controller' =>    'payment',
-                'rule' =>        'setpayment/{paymentId}/{tpv_id}',
-                'keywords' => array(
-                    'paymentId' =>            array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'paymentId'),
-                    'tpv_id' =>        array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'tpv_id'),
-                ),
-                'params' => array(
-                    'fc' => 'module',
-                    'module' => $this->name
-                ),
-            ),*/
         );
-    }
-
-    public function hookActionOrderStatusPostUpdate()
-    {
-        /* Place your code here. */
-    }
-
-    public function hookActionOrderStatusUpdate()
-    {
-        /* Place your code here. */
-    }
-
-    public function hookActionValidateOrder()
-    {
-        /* Place your code here. */
-    }
-
-    public function hookDisplayAdminOrderContentOrder()
-    {
-        /* Place your code here. */
-    }
-
-    public function hookDisplayAdminOrderTabOrder()
-    {
-        /* Place your code here. */
     }
     
     public function getSingleOrder($id_order){
@@ -684,7 +586,13 @@ class Icommktconnector extends Module
                 
     }
     
-    public function getOrdersWithInformations($limit = null, $page = null, $orderField = null, $orderType = null, $date_range = null, Context $context = null)
+    public function getOrdersWithInformations(
+            $limit = null,
+            $page = null,
+            $orderField = null,
+            $orderType = null,
+            $date_range = null,
+            Context $context = null)
     {
         if (!$context) {
             $context = Context::getContext();
@@ -789,7 +697,7 @@ class Icommktconnector extends Module
                 'price' => round($item['total_price_tax_incl'], 2),
             );
 
-            if($extend){
+            if ($extend) {
                 $product = new Product($item['product_id'], false, (int)$context->language->id);
 
                 $image = Image::getCover($item['product_id']);
@@ -950,7 +858,7 @@ class Icommktconnector extends Module
         $prepared_data = array();
         $langs = Language::getLanguages();
 		
-        foreach($customers as $customer){
+        foreach ($customers as $customer) {
             $customer['address_data_object'] = $this->getAddressCustomer($customer['id_customer']);
             $customer['address_company_object'] = $this->getAddressCompanyCustomer($customer['id_customer']);
             $customer['localeDefault'] = $langs[$customer['id_lang']]['iso_code'];
@@ -963,7 +871,7 @@ class Icommktconnector extends Module
         $where_params = Tools::getValue('_where');
         if(!$where_params || strpos($where_params, 'lastInteractionIn') === false
                 || strpos($where_params, 'createdIn') === false){
-            die('no "where" parameteror missing lastInteractionIn/createdIn on where clausule');
+            die('no "where" parameter missing lastInteractionIn/createdIn on where clausule');
         }
         
         $where_params = str_replace('lastInteractionIn between ','date_upd between \'',$where_params);
