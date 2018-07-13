@@ -473,7 +473,7 @@ class Icommktconnector extends Module
         if(Tools::getValue('page') && is_numeric(Tools::getValue('page')))
             $page = (int)Tools::getValue('page');
 
-        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('page')))
+        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page')))
             $limit = (int)Tools::getValue('per_page');
 
         if($orderBy = Tools::getValue('orderBy')){
