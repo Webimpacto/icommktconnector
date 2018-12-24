@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -874,6 +874,20 @@ class Icommktconnector extends Module
             die('no "where" parameter missing lastInteractionIn/createdIn on where clausule');
         }
         
+        $page = 1;
+        $limit = 1;
+        if (Tools::getValue('page') && is_numeric(Tools::getValue('page'))) {
+            $page = (int)Tools::getValue('page');
+        }
+        if (Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page'))) {
+            $limit = (int)Tools::getValue('per_page');
+        }
+        if (!$page) {
+            $n=0;
+        } else {
+            $n=((int)$page-1)*(int)$limit;
+        }
+        
         $where_params = str_replace('lastInteractionIn between ','date_upd between \'',$where_params);
         $where_params = str_replace('createdIn between ','date_add between \'',$where_params);
         $where_params = str_replace(' AND ','\' AND \'',$where_params);
@@ -883,7 +897,19 @@ class Icommktconnector extends Module
                 WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
                 ($only_active ? ' AND `active` = 1' : '').'
                 '.($where_params ? ' AND '.$where_params : '').'    
+                ORDER BY `date_add` ASC 
+                '.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
+        
+        $sql_count = 'SELECT count(*) cuenta 
+                FROM `'._DB_PREFIX_.'customer`
+                WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
+                ($only_active ? ' AND `active` = 1' : '').'
+                '.($where_params ? ' AND '.$where_params : '').'    
                 ORDER BY `date_add` ASC';
+        
+        $count = Db::getInstance()->getValue($sql_count);
+        header('Total-Records: '.$count);
+        
         return Db::getInstance()->executeS($sql);
     }
     

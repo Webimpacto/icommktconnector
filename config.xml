@@ -2,7 +2,7 @@
 <module>
 	<name>icommktconnector</name>
 	<displayName><![CDATA[ICOMMKT Connector]]></displayName>
-	<version><![CDATA[1.0.0]]></version>
+	<version><![CDATA[1.0.1]]></version>
 	<description><![CDATA[Enabled API service to connect to ICOMMKT service]]></description>
 	<author><![CDATA[icommkt]]></author>
 	<tab><![CDATA[emailing]]></tab>
