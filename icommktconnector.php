@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -308,6 +308,7 @@ class Icommktconnector extends Module
             'salesChannel' => 1,
             'merchantName' => null,
             'status' => $order['state_name'],
+            'statusId' => $order['current_state'],
             'statusDescription' => $order['state_name'],
             'value' => $order['total_paid'],
             'creationDate' => gmdate("c", strtotime($order['date_add'])),
@@ -468,13 +469,21 @@ class Icommktconnector extends Module
         $orderType = null;
         $limit = 1;
         $page = 1;
-        $date_range = null;
+        $date_range = array();
+        $date_updated = array();
+        $order_states = array();
 
-        if(Tools::getValue('page') && is_numeric(Tools::getValue('page')))
+        if(Tools::getValue('page') && is_numeric(Tools::getValue('page'))) {
             $page = (int)Tools::getValue('page');
+        }
 
-        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page')))
+        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page'))) {
             $limit = (int)Tools::getValue('per_page');
+        }
+        
+        if(Tools::getValue('current_state') && is_array(Tools::getValue('current_state'))) {
+            $order_states = Tools::getValue('current_state');
+        }
 
         if($orderBy = Tools::getValue('orderBy')){
             $orderParams = explode(',', $orderBy);
@@ -508,8 +517,17 @@ class Icommktconnector extends Module
                 $date_range['to'] = date('"Y-m-d H:i:s"', strtotime(trim($creationDate[1])));
             }
         }
+        
+        if($f_updateDate = Tools::getValue('f_updateDate')){
+            preg_match('/\[(.*?)\]/s', $f_updateDate, $updatedDate);
+            $updatedDate = explode('TO', $updatedDate[1]);
+            if((bool)strtotime(trim($updatedDate[0])) && (bool)strtotime(trim($updatedDate[1]))){
+                $date_updated['from'] = date('"Y-m-d H:i:s"', strtotime(trim($updatedDate[0])));
+                $date_updated['to'] = date('"Y-m-d H:i:s"', strtotime(trim($updatedDate[1])));
+            }
+        }
 
-        $data_orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range);
+        $data_orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range, $date_updated, $order_states);
 
         $ordersFormatVtex = array();
         foreach($data_orders['orders'] as &$order){
@@ -564,6 +582,7 @@ class Icommktconnector extends Module
             'totalValue' => round($order['total_paid'],2),
             'paymentNames' => $order['payment'],
             'status' => $order['state_name'],
+            'statusId' => $order['current_state'],
             'statusDescription' => $order['state_name'],
             'marketPlaceOrderId' => $order['id_order'],
             'sequence' => $order['id_order'],
@@ -591,23 +610,35 @@ class Icommktconnector extends Module
             $page = null,
             $orderField = null,
             $orderType = null,
-            $date_range = null,
+            $date_range = array(),
+            $date_updated = array(),
+            $order_states = array(),
             Context $context = null)
     {
         if (!$context) {
             $context = Context::getContext();
         }
 
-        if(!$page)
+        if(!$page) {
             $n=0;
-        else
+        } else {
             $n=((int)$page-1)*(int)$limit;
+        }
+        $where = '';
 
-        if(count($date_range))
-            $where_date = ' AND o.date_add BETWEEN '.$date_range['from'].' AND '.$date_range['to'];
-        else
-            $where_date = '';
-
+        if(count($date_range)) {
+            $where .= ' AND o.date_add BETWEEN '.$date_range['from'].' AND '.$date_range['to'];
+        }
+        
+        if(count($date_updated)) {
+            $where .= ' AND o.date_upd BETWEEN '.$date_updated['from'].' AND '.$date_updated['to'];
+        }
+        
+        if(count($order_states)) {
+            $where .= ' AND o.current_state IN ('.implode(',', $order_states).') ';
+        }
+        
+        
         $sql = 'SELECT *, (
 					SELECT osl.`name`
 					FROM `'._DB_PREFIX_.'order_state_lang` osl
@@ -627,18 +658,18 @@ class Icommktconnector extends Module
                                 LEFT JOIN `'._DB_PREFIX_.'address` ad ON (ad.`id_address` = o.`id_address_delivery`)
 				WHERE 1
 					'.Shop::addSqlRestriction(false, 'o').'
-                    '.$where_date.'
+                    '.$where.' 
                 ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC').'
 				'.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
 
         $result['orders'] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
 
-        $sql = 'SELECT count(id_order)
+        $sql = 'SELECT count(id_order) 
                 FROM `'._DB_PREFIX_.'orders` o
                 WHERE 1
                     '.Shop::addSqlRestriction(false, 'o').'
-                    '.$where_date.'
+                    '.$where.' 
                 ORDER BY o.'.($orderField ? $orderField : 'id_order').' '.($orderType ? $orderType : 'DESC');
 
         $result['count'] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
