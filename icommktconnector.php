@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -530,11 +530,12 @@ class Icommktconnector extends Module
         $data_orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range, $date_updated, $order_states);
 
         $ordersFormatVtex = array();
+        $ordersFormatVtex['list'] = array();
         foreach($data_orders['orders'] as &$order){
             $ordersFormatVtex['list'][] = $this->formatListOrder($order);
         }
         
-        if(count($ordersFormatVtex['list'])){
+        //if(count($ordersFormatVtex['list'])){
             $ordersFormatVtex['facets'] = array();
             $ordersFormatVtex['paging'] = array(
                 'total' => (int)$data_orders['count'],
@@ -568,7 +569,7 @@ class Icommktconnector extends Module
                     ),
                 ),                
             );
-        }
+        //}
 
         exit(json_encode($ordersFormatVtex));
     }
