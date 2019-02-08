@@ -32,10 +32,10 @@ class IcommktconnectorOMSModuleFrontController extends ModuleFrontController
         $module = Module::getInstanceByName('icommktconnector');
         $module->authorizeRequest();
         
-        if(strpos($_SERVER['REQUEST_URI'], 'status_list')!==false){
+        if (strpos($_SERVER['REQUEST_URI'], 'status_list') !== false) {
             $module->getStatusList();
         } else {
-            if($id_order = Tools::getValue('id_order')){
+            if ($id_order = Tools::getValue('id_order')) {
                 $module->getSingleOrder($id_order);
             } else {
                 $module->getOrders();

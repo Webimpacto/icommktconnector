@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.3';
+        $this->version = '1.0.4';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -159,7 +159,8 @@ class Icommktconnector extends Module
         }
     }
     
-    public function getApiBodyRequest(){
+    public function getApiBodyRequest()
+    {
         $input_xml = null;
         $putresource = fopen("php://input", "r");
         while ($putData = fread($putresource, 1024)) {
@@ -176,7 +177,8 @@ class Icommktconnector extends Module
                 $headers = '';
                 foreach ($_SERVER as $name => $value) {
                     if (substr($name, 0, 5) == 'HTTP_') {
-                        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                        $headers[str_replace(' ', '-', 
+                                ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
                     }
                 }
                 return $headers;
@@ -187,14 +189,14 @@ class Icommktconnector extends Module
         $headerKey = '';
         $headerToken = '';
         foreach($headers as $key => $value){
-            if(strtoupper($key) == 'X-VTEX-API-APPKEY'){
+            if (strtoupper($key) == 'X-VTEX-API-APPKEY') {
                 $headerKey = $value;
             }
-            if(strtoupper($key) == 'X-VTEX-API-APPTOKEN'){
+            if (strtoupper($key) == 'X-VTEX-API-APPTOKEN') {
                 $headerToken = $value;
             }
         }
-        if(!empty($headerKey) && !empty($headerToken)){
+        if (!empty($headerKey) && !empty($headerToken)) {
             
             $shopCondition = 'id_shop IS NULL';
             if (Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE') && Shop::getTotalShops() > 1) {
@@ -205,10 +207,10 @@ class Icommktconnector extends Module
                         . "AND value='%s' AND ".$shopCondition,pSQL($headerKey));
 
             $result = Db::getInstance()->getRow($query);
-            if($result){
+            if ($result) {
                 $this->context_id_shop = $result['id_shop'];
                 $this->context_id_shop_group = $result['id_shop_group'];
-            }else{
+            } else {
                 $this->setError(
                     'Cannot find store for ICOMMKT_APPKEY - '.$headerKey,
                     400,
@@ -222,7 +224,7 @@ class Icommktconnector extends Module
         $apiKey = Configuration::get('ICOMMKT_APPKEY',null,$this->context_id_shop_group,  $this->context_id_shop);
         $apiToken = Configuration::get('ICOMMKT_APPTOKEN',null,$this->context_id_shop_group,  $this->context_id_shop);
 
-        if(empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken){
+        if ( empty($headerKey) || empty($headerToken) || $headerKey != $apiKey || $headerToken != $apiToken) {
             $this->setError('Bad credentials', 403,  json_encode($headers),false);
             header("HTTP/1.1 403 Forbidden");
             die();
@@ -230,7 +232,8 @@ class Icommktconnector extends Module
         
     }
     
-    public function controllerSetRespondeHeaders(){
+    public function controllerSetRespondeHeaders()
+    {
         if (ob_get_level() && ob_get_length() > 0) {
             ob_end_clean();
         }
@@ -238,11 +241,12 @@ class Icommktconnector extends Module
         header('Cache-Control: no-store, no-cache');
     }
     
-    public function setError($message,$level,$additional_data = false,$stop=true){
+    public function setError($message, $level, $additional_data = false, $stop = true)
+    {
         PrestaShopLogger::addLog('ICOMMKTCONNECTOR - ERROR: '.$message.' - '.$additional_data, 4, $level);
         $this->controllerSetRespondeHeaders();
         //http_response_code($level);
-        if($stop){
+        if ($stop) {
             exit(json_encode(array('error' => $message)));
         }
     }
@@ -288,13 +292,15 @@ class Icommktconnector extends Module
         );
     }
     
-    public function getSingleOrder($id_order){
+    public function getSingleOrder($id_order)
+    {
         $order = $this->getOrderInformation($id_order);
         $cart_rules = $this->getCartRules($id_order);
 
 
-        if(!$order)
+        if (!$order) {
             exit('order not found');
+        }
 
         $currency = Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'));
         $data = array(
@@ -464,7 +470,8 @@ class Icommktconnector extends Module
 
     }
 
-    public function getOrders(){
+    public function getOrders()
+    {
         $orderField = null;
         $orderType = null;
         $limit = 1;
@@ -473,19 +480,19 @@ class Icommktconnector extends Module
         $date_updated = array();
         $order_states = array();
 
-        if(Tools::getValue('page') && is_numeric(Tools::getValue('page'))) {
+        if (Tools::getValue('page') && is_numeric(Tools::getValue('page'))) {
             $page = (int)Tools::getValue('page');
         }
 
-        if(Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page'))) {
+        if (Tools::getValue('per_page') && is_numeric(Tools::getValue('per_page'))) {
             $limit = (int)Tools::getValue('per_page');
         }
         
-        if(Tools::getValue('current_state') && is_array(Tools::getValue('current_state'))) {
+        if (Tools::getValue('current_state') && is_array(Tools::getValue('current_state'))) {
             $order_states = Tools::getValue('current_state');
         }
 
-        if($orderBy = Tools::getValue('orderBy')){
+        if ($orderBy = Tools::getValue('orderBy')) {
             $orderParams = explode(',', $orderBy);
             $field = $orderParams[0];
 
@@ -505,29 +512,32 @@ class Icommktconnector extends Module
             }
 
             $type = $orderParams[1];
-            if($type == 'asc' || $type == 'desc')
+            if ($type == 'asc' || $type == 'desc') {
                 $orderType = $type;
+            }
         }
 
-        if($f_creationDate = Tools::getValue('f_creationDate')){
+        if ($f_creationDate = Tools::getValue('f_creationDate')) {
             preg_match('/\[(.*?)\]/s', $f_creationDate, $creationDate);
             $creationDate = explode('TO', $creationDate[1]);
-            if((bool)strtotime(trim($creationDate[0])) && (bool)strtotime(trim($creationDate[1]))){
+            if ((bool)strtotime(trim($creationDate[0])) && (bool)strtotime(trim($creationDate[1]))) {
                 $date_range['from'] = date('"Y-m-d H:i:s"', strtotime(trim($creationDate[0])));
                 $date_range['to'] = date('"Y-m-d H:i:s"', strtotime(trim($creationDate[1])));
             }
         }
         
-        if($f_updateDate = Tools::getValue('f_updateDate')){
+        if ($f_updateDate = Tools::getValue('f_updateDate')) {
             preg_match('/\[(.*?)\]/s', $f_updateDate, $updatedDate);
             $updatedDate = explode('TO', $updatedDate[1]);
-            if((bool)strtotime(trim($updatedDate[0])) && (bool)strtotime(trim($updatedDate[1]))){
+            if ((bool)strtotime(trim($updatedDate[0])) && (bool)strtotime(trim($updatedDate[1]))) {
                 $date_updated['from'] = date('"Y-m-d H:i:s"', strtotime(trim($updatedDate[0])));
                 $date_updated['to'] = date('"Y-m-d H:i:s"', strtotime(trim($updatedDate[1])));
             }
         }
 
-        $data_orders = $this->getOrdersWithInformations($limit, $page, $orderField, $orderType, $date_range, $date_updated, $order_states);
+        $data_orders = $this->getOrdersWithInformations(
+                $limit, $page, $orderField, $orderType, 
+                $date_range, $date_updated, $order_states);
 
         $ordersFormatVtex = array();
         $ordersFormatVtex['list'] = array();
@@ -535,7 +545,7 @@ class Icommktconnector extends Module
             $ordersFormatVtex['list'][] = $this->formatListOrder($order);
         }
         
-        //if(count($ordersFormatVtex['list'])){
+        //if (count($ordersFormatVtex['list'])) {
             $ordersFormatVtex['facets'] = array();
             $ordersFormatVtex['paging'] = array(
                 'total' => (int)$data_orders['count'],
@@ -575,7 +585,8 @@ class Icommktconnector extends Module
     }
     
 
-    public function formatListOrder($order){
+    public function formatListOrder($order)
+    {
         $data = array(
             'orderId' => $order['id_order'],
             'creationDate' => gmdate("c", strtotime($order['date_add'])),
@@ -620,22 +631,22 @@ class Icommktconnector extends Module
             $context = Context::getContext();
         }
 
-        if(!$page) {
+        if (!$page) {
             $n=0;
         } else {
             $n=((int)$page-1)*(int)$limit;
         }
         $where = '';
 
-        if(count($date_range)) {
+        if (count($date_range)) {
             $where .= ' AND o.date_add BETWEEN '.$date_range['from'].' AND '.$date_range['to'];
         }
         
-        if(count($date_updated)) {
+        if (count($date_updated)) {
             $where .= ' AND o.date_upd BETWEEN '.$date_updated['from'].' AND '.$date_updated['to'];
         }
         
-        if(count($order_states)) {
+        if (count($order_states)) {
             $where .= ' AND o.current_state IN ('.implode(',', $order_states).') ';
         }
         
@@ -708,8 +719,8 @@ class Icommktconnector extends Module
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
     }
 
-    public function formatProductList($id_order, $extend = false, Context $context = null){
-
+    public function formatProductList($id_order, $extend = false, Context $context = null)
+    {
         if (!$context) {
             $context = Context::getContext();
         }
@@ -739,7 +750,8 @@ class Icommktconnector extends Module
                     'listPrice' => round($item['original_product_price'], 2),
                     'manualPrice' => null,
                     'priceTags' => array(),
-                    'imageUrl' => ((isset($image['id_image']))?$context->link->getImageLink($product->link_rewrite, $image['id_image']):'not_cover_image'),
+                    'imageUrl' => ((isset($image['id_image']))?$context->link->getImageLink($product->link_rewrite, 
+                            $image['id_image']):'not_cover_image'),
                     'detailUrl' => $context->link->getProductLink($item['product_id']),
                     'categories' => array_column(Product::getProductCategoriesFull($item['product_id']), 'name'),
                     'components' => array(),
@@ -785,7 +797,8 @@ class Icommktconnector extends Module
         return $products;
     }
 
-    public function getLogisticInfo($id_order){
+    public function getLogisticInfo($id_order)
+    {
         $data = array();
 
         foreach (OrderDetail::getList($id_order) as $key => $item) {
@@ -839,7 +852,8 @@ class Icommktconnector extends Module
         }
     }
 
-    public function getCartRules($id_order){
+    public function getCartRules($id_order)
+    {
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
         SELECT *
         FROM `'._DB_PREFIX_.'order_cart_rule` ocr
@@ -847,7 +861,8 @@ class Icommktconnector extends Module
         WHERE ocr.`id_order` = '.(int)$id_order);
     }
 
-    public static function getDataPayment($order_reference){
+    public static function getDataPayment($order_reference)
+    {
         $payments = Db::getInstance()->executeS('
             SELECT *
             FROM `'._DB_PREFIX_.'order_payment`
@@ -893,16 +908,18 @@ class Icommktconnector extends Module
         foreach ($customers as $customer) {
             $customer['address_data_object'] = $this->getAddressCustomer($customer['id_customer']);
             $customer['address_company_object'] = $this->getAddressCompanyCustomer($customer['id_customer']);
-            $customer['localeDefault'] = $langs[$customer['id_lang']]['iso_code'];
+            $customer['localeDefault'] = (($customer['id_lang'] && isset($langs[$customer['id_lang']]))?
+                    $langs[$customer['id_lang']]['iso_code'] : null);
             $prepared_data[] = $this->formatCustomerDataToVTEX($customer);
         }
         die(json_encode($prepared_data));
     }
     
-    public function getCustomers($only_active = false){
+    public function getCustomers($only_active = false)
+    {
         $where_params = Tools::getValue('_where');
-        if(!$where_params || strpos($where_params, 'lastInteractionIn') === false
-                || strpos($where_params, 'createdIn') === false){
+        if (!$where_params || strpos($where_params, 'lastInteractionIn') === false
+                || strpos($where_params, 'createdIn') === false) {
             die('no "where" parameter missing lastInteractionIn/createdIn on where clausule');
         }
         
@@ -945,7 +962,8 @@ class Icommktconnector extends Module
         return Db::getInstance()->executeS($sql);
     }
     
-    public function getAddressCustomer($id_customer, $active = true){
+    public function getAddressCustomer($id_customer, $active = true)
+    {
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
             SELECT *
             FROM `'._DB_PREFIX_.'address`
@@ -954,7 +972,8 @@ class Icommktconnector extends Module
         return $result;
     }
     
-    public function getAddressCompanyCustomer($id_customer, $active = true){
+    public function getAddressCompanyCustomer($id_customer, $active = true)
+    {
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
             SELECT *
             FROM `'._DB_PREFIX_.'address`
@@ -965,7 +984,8 @@ class Icommktconnector extends Module
         return $result;
     }
     
-    public function formatCustomerDataToVTEX($customer){
+    public function formatCustomerDataToVTEX($customer)
+    {
         $data = array(
             'email' => $customer['email'],
             'approved' => $customer['active'],
@@ -984,17 +1004,22 @@ class Icommktconnector extends Module
             'phone' => (($customer['address_data_object'])?$customer['address_data_object']['phone_mobile']:null),
             'homePhone' => (($customer['address_data_object'])?$customer['address_data_object']['phone']:null),
             'document' => (($customer['address_data_object'])?$customer['address_data_object']['dni']:null),
-            'documentType' => (($customer['address_data_object'])?($customer['address_data_object']['dni']?'dni':null):null),
+            'documentType' => (($customer['address_data_object'])?
+                ($customer['address_data_object']['dni']?'dni':null):null),
         );
         $data += array(
-            'businessPhone' => (($customer['address_company_object'])?$customer['address_company_object']['phone']:null),
-            'corporateName' => (($customer['address_company_object'])?$customer['address_company_object']['company']:null),
-            'isCorporate' => (($customer['address_company_object'])?($customer['address_company_object']['company']?1:null):null),
+            'businessPhone' => (($customer['address_company_object'])?
+                $customer['address_company_object']['phone']:null),
+            'corporateName' => (($customer['address_company_object'])?
+                $customer['address_company_object']['company']:null),
+            'isCorporate' => (($customer['address_company_object'])?
+                ($customer['address_company_object']['company']?1:null):null),
         );
         return $data;
     }
     
-    public function getStatusList(Context $context = null){
+    public function getStatusList(Context $context = null)
+    {
         if (!$context) {
             $context = Context::getContext();
         }
