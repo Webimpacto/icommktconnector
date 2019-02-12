@@ -296,7 +296,14 @@ class Icommktconnector extends Module
     {
         $order = $this->getOrderInformation($id_order);
         $cart_rules = $this->getCartRules($id_order);
-
+        if(!$cart_rules){
+            $cart_rules = array(
+                array(
+                    "code" => '',
+                    "name" => ''
+                )
+            );
+        }
 
         if (!$order) {
             exit('order not found');
@@ -444,7 +451,7 @@ class Icommktconnector extends Module
             'customData' => null,
             'storePreferencesData' => array(
                 'countryCode' => Country::getIsoById(Configuration::get('PS_SHOP_COUNTRY_ID')),
-                'currencyCode' => $currency['iso_code'],
+                'currencyCode' => ($currency['iso_code']?$currency['iso_code']:'unknow'),
                 'currencyFormatInfo' => array(
                     'CurrencyDecimalDigits' => 2,
                     'CurrencyDecimalSeparator' => ",",
@@ -453,7 +460,7 @@ class Icommktconnector extends Module
                     'StartsWithCurrencySymbol' => true,
                 ),
                 'currencyLocale' => null,
-                'currencySymbol' => $currency['sign'],
+                'currencySymbol' => ($currency['sign']?$currency['sign']:'unknow'),
                 'timeZone' => Configuration::get('PS_TIMEZONE'),
             ),
             'allowCancellation' => true,
@@ -694,7 +701,8 @@ class Icommktconnector extends Module
         if (!$context) {
             $context = Context::getContext();
         }
-
+        
+        $limit = false;
         $sql = 'SELECT *, (
                     SELECT osl.`name`
                     FROM `'._DB_PREFIX_.'order_state_lang` osl
@@ -863,10 +871,10 @@ class Icommktconnector extends Module
 
     public static function getDataPayment($order_reference)
     {
-        $payments = Db::getInstance()->executeS('
+        $payments = Db::getInstance()->executeS("
             SELECT *
-            FROM `'._DB_PREFIX_.'order_payment`
-            WHERE `order_reference` = '.(int)$order_reference);
+            FROM `"._DB_PREFIX_."order_payment`
+            WHERE `order_reference` = '".$order_reference."'");
 
         $data = array();
 
