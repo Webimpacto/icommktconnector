@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.4';
+        $this->version = '1.0.5';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -451,7 +451,7 @@ class Icommktconnector extends Module
             'customData' => null,
             'storePreferencesData' => array(
                 'countryCode' => Country::getIsoById(Configuration::get('PS_SHOP_COUNTRY_ID')),
-                'currencyCode' => ($currency['iso_code']?$currency['iso_code']:'unknow'),
+                'currencyCode' => (isset($currency['iso_code'])?$currency['iso_code']:'undefined'),
                 'currencyFormatInfo' => array(
                     'CurrencyDecimalDigits' => 2,
                     'CurrencyDecimalSeparator' => ",",
@@ -460,7 +460,7 @@ class Icommktconnector extends Module
                     'StartsWithCurrencySymbol' => true,
                 ),
                 'currencyLocale' => null,
-                'currencySymbol' => ($currency['sign']?$currency['sign']:'unknow'),
+                'currencySymbol' => (isset($currency['sign'])?$currency['sign']:'undefined'),
                 'timeZone' => Configuration::get('PS_TIMEZONE'),
             ),
             'allowCancellation' => true,
