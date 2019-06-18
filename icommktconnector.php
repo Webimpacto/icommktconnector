@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -930,6 +930,7 @@ class Icommktconnector extends Module
                 || strpos($where_params, 'createdIn') === false) {
             die('no "where" parameter missing lastInteractionIn/createdIn on where clausule');
         }
+		$where_params = $this->sanitizeWhereParams($where_params);
         
         $page = 1;
         $limit = 1;
@@ -1034,4 +1035,8 @@ class Icommktconnector extends Module
         $orderStatus = OrderState::getOrderStates((int)$context->language->id);
         exit(json_encode($orderStatus));
     }
+	public function sanitizeWhereParams($where)
+	{
+		return(str_replace(array("'",'"'),array("''",'""'),$where));
+	}
 }
