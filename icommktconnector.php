@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -930,7 +930,7 @@ class Icommktconnector extends Module
                 || strpos($where_params, 'createdIn') === false) {
             die('no "where" parameter missing lastInteractionIn/createdIn on where clausule');
         }
-		$where_params = $this->sanitizeWhereParams($where_params);
+        $where_params = $this->sanitizeWhereParams($where_params);
         
         $page = 1;
         $limit = 1;
@@ -954,7 +954,7 @@ class Icommktconnector extends Module
                 FROM `'._DB_PREFIX_.'customer`
                 WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
                 ($only_active ? ' AND `active` = 1' : '').'
-                '.($where_params ? ' AND '.$where_params : '').'    
+                '.($where_params ? ' AND ('.$where_params.')' : '').'    
                 ORDER BY `date_add` ASC 
                 '.((int)$limit ? 'LIMIT '.(int)$n.', '.(int)$limit : '');
         
@@ -962,7 +962,7 @@ class Icommktconnector extends Module
                 FROM `'._DB_PREFIX_.'customer`
                 WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
                 ($only_active ? ' AND `active` = 1' : '').'
-                '.($where_params ? ' AND '.$where_params : '').'    
+                '.($where_params ? ' AND ('.$where_params.')' : '').'    
                 ORDER BY `date_add` ASC';
         
         $count = Db::getInstance()->getValue($sql_count);
