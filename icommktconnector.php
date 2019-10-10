@@ -44,13 +44,28 @@ class Icommktconnector extends Module
     public function install()
     {
         return parent::install() &&
-            $this->registerHook('moduleRoutes');
+        $this->installDb() &&
+        $this->registerHook('moduleRoutes');
     }
 
     public function uninstall()
     {
 
-        return parent::uninstall();
+        return parent::uninstall() && $this->uninstallDb();
+    }
+
+    public function installDb(){
+        $sql = file_get_contents(dirname(__FILE__) . '/install.sql');
+        $sql = str_replace('PREFIX_', _DB_PREFIX_, $sql);
+        $sql = preg_split("/;\s*[\r\n]+/", $sql);
+        foreach($sql as $query){
+            Db::getInstance()->Execute($query);
+        }
+    }
+
+    public function uninstallDb(){
+        Db::getInstance()->Execute('DROP TABLE `' . _DB_PREFIX_ . 'commktconnector_abandomentcarts`');
+        Db::getInstance()->Execute('DROP TABLE `' . _DB_PREFIX_ . 'commktconnector_abandomentcarts_error`');
     }
 
     /**
@@ -64,6 +79,23 @@ class Icommktconnector extends Module
         if (((bool)Tools::isSubmit('submitIcommktconnectorModule')) == true) {
             $this->postProcess();
         }
+
+        /* Mostrar en el backoffice las URLs de ejemplo para ejecutar las distintas funciones del módulo */
+        $load_cart_url = $this->getFormattedLink(array(
+            'action' => 'load_cart',
+            'secure_token' => '[secure_token]',
+            'id_cart' => '[id_cart]'
+        ));
+        $send_abandoment_cart_url = $this->getFormattedLink(array(
+            'action' => 'sendAbandomentcarts',
+            'secure_token' => '[secure_token]',
+        ));
+
+        $this->context->smarty->assign(array(
+            'module_dir' => $this->_path,
+            'load_cart_url' => $load_cart_url,
+            'send_abandoment_cart_url' => $send_abandoment_cart_url
+        ));
 
         $this->context->smarty->assign('module_dir', $this->_path);
 
@@ -128,6 +160,39 @@ class Icommktconnector extends Module
                         'name' => 'ICOMMKT_APPTOKEN',
                         'label' => $this->l('App TOKEN'),
                     ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-gear"></i>',
+                        'desc' => $this->l('You can custom this value as you wish'),
+                        'name' => 'ICOMMKT_SECURE_TOKEN',
+                        'label' => $this->l('Secure TOKEN'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-gear"></i>',
+                        'desc' => $this->l('You can custom this value as you wish'),
+                        'name' => 'ICOMMKT_DAYS_TO_ABANDON',
+                        'label' => $this->l('Days to abandon'),
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => 'Friendly URL',
+                        'name' => 'ICOMMKT_FRIENDLY_URL',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 1,
+                                'label' => 'Enabled'
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 0,
+                                'label' => 'Disabled'
+                            )
+                        )
+                    )
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
@@ -144,6 +209,9 @@ class Icommktconnector extends Module
         return array(
             'ICOMMKT_APPKEY' => Configuration::get('ICOMMKT_APPKEY', null),
             'ICOMMKT_APPTOKEN' => Configuration::get('ICOMMKT_APPTOKEN', null),
+            'ICOMMKT_SECURE_TOKEN' => !empty(Configuration::get('ICOMMKT_SECURE_TOKEN', null)) ? Configuration::get('ICOMMKT_SECURE_TOKEN', null) : '1cfjy758ge',
+            'ICOMMKT_DAYS_TO_ABANDON' => !empty(Configuration::get('ICOMMKT_DAYS_TO_ABANDON', null)) ? Configuration::get('ICOMMKT_DAYS_TO_ABANDON', null) : '1',
+            'ICOMMKT_FRIENDLY_URL' => Configuration::get('ICOMMKT_FRIENDLY_URL', null),
         );
     }
 
@@ -253,7 +321,7 @@ class Icommktconnector extends Module
     
     public function hookModuleRoutes($params)
     {
-        return array(
+        $result = array(
             'oms_list_status' => array(
                 //List Orders
                 'controller' =>    'oms',
@@ -290,6 +358,25 @@ class Icommktconnector extends Module
                 ),
             ),
         );
+
+        if (Configuration::get('ICOMMKT_FRIENDLY_URL', null) == 1) {
+            $result[$this->name] = array(
+                //List Orders
+                'controller' => 'abandomentcart',
+                'keywords' => array(
+                    'action' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'action'),
+                    'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
+                    'id_cart' => array('regexp' => '[0-9\pL\pS-]*', 'param' => 'id_cart'),
+                ),
+                'rule' => 'abandomentcart',
+                'params' => array(
+                    'fc' => 'module',
+                    'module' => $this->name
+                ),
+            );
+        }
+
+        return $result;
     }
     
     public function getSingleOrder($id_order)
@@ -1039,4 +1126,26 @@ class Icommktconnector extends Module
 	{
 		return(str_replace(array("'",'"'),array("''",'""'),$where));
 	}
+
+    public function getFormattedLink($params) {
+        $base_url = Tools::getHttpHost(true);
+        if(Configuration::get('ICOMMKT_FRIENDLY_URL', null) == 1){
+            $url = $base_url.'/abandomentcart?';
+        }else{
+            $url = $base_url.'/index.php?fc=module&controller=abandomentcart&module=icommktconnector&';
+        }
+
+        $url_end = '';
+        foreach($params as $key => $param) {
+            $url_end .= $key.'='.$param;
+            if(next($params)) {
+                $url_end .= '&';
+            }
+        }
+
+        $url = $url.$url_end;
+
+        return $url;
+
+    }
 }
