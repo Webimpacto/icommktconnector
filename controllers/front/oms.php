@@ -1,5 +1,5 @@
 <?php
-/*
+/**
 * NOTICE OF LICENSE
 *
 * This file is licenced under the Software License Agreement.
@@ -41,8 +41,5 @@ class IcommktconnectorOMSModuleFrontController extends ModuleFrontController
                 $module->getOrders();
             }
         }
-        
     }
-
-
 }
