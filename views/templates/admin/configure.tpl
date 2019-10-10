@@ -28,13 +28,13 @@
 		{if isset($load_cart_url) && !empty($load_cart_url)}
 			<div class="url-load-cart">
 				<span><strong>{l s='Load cart' mod='icommktconnector'}</strong>:</span>
-				<span>{$load_cart_url}</span>
+				<span>{$load_cart_url | escape:'html':'UTF-8'}</span>
 			</div>
 		{/if}
 		{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
 			<div class="url-send-abandoment-cart">
 				<span><strong>{l s='Send abandoment cart' mod='icommktconnector'}</strong>:</span>
-				<span>{$send_abandoment_cart_url}</span>
+				<span>{$send_abandoment_cart_url | escape:'html':'UTF-8'}</span>
 			</div>
 		{/if}
 	</div>
@@ -42,7 +42,7 @@
 		<h4>{l s='Example Crons' mod='icommktconnector'}</h4>
 		{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
 			<div class="url-send-abandoment-cart">
-				<span>{$send_abandoment_cart_url}</span>
+				<span>{$send_abandoment_cart_url | escape:'html':'UTF-8'}</span>
 			</div>
 		{/if}
 	</div>
