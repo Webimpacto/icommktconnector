@@ -36,7 +36,7 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
 
         $action = Tools::getValue('action');
         $secure_token = Tools::getValue('secure_token');
-        $secure_token_back = Configuration::get('ICOMMKT_SECURE_TOKEN', null);
+        $secure_token_back = Configuration::get('ICOMMKT_SECURE_TOKEN');
         $id_cart = Tools::getValue('id_cart');
 
         if (empty($secure_token) || ($secure_token != $secure_token_back)) {

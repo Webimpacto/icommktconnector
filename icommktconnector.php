@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.9';
+        $this->version = '1.0.10';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -179,7 +179,7 @@ class Icommktconnector extends Module
                         'label' => $this->l('Days to abandon'),
                     ),
                     array(
-                        'type' => 'switch',
+                        'type' => 'radio',
                         'label' => 'Friendly URL',
                         'name' => 'ICOMMKT_FRIENDLY_URL',
                         'values' => array(
