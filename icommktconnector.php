@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.0.10';
+        $this->version = '1.1.0';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
