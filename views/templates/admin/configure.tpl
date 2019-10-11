@@ -22,30 +22,30 @@
 			<h2>{l s='ICOMMKT' mod='icommktconnector'}</h2>
 			<h4>{l s='Email & Automation Marketing' mod='icommktconnector'}</h4>
 		</div>
-	</div>
-	<div class="col-xs-12 url-container">
-		<h4>{l s='Example URLs' mod='icommktconnector'}</h4>
-		{if isset($load_cart_url) && !empty($load_cart_url)}
-			<div class="url-load-cart">
-				<span><strong>{l s='Load cart' mod='icommktconnector'}</strong>:</span>
-				<span>{$load_cart_url | escape:'html':'UTF-8'}</span>
-			</div>
-		{/if}
-		{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
-			<div class="url-send-abandoment-cart">
-				<span><strong>{l s='Send abandoment cart' mod='icommktconnector'}</strong>:</span>
-				<span>{$send_abandoment_cart_url | escape:'html':'UTF-8'}</span>
-			</div>
-		{/if}
-	</div>
-	<div class="col-xs-12 crons-container">
-		<h4>{l s='Example Crons' mod='icommktconnector'}</h4>
-		{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
-			<div class="url-send-abandoment-cart">
-				<span>{$send_abandoment_cart_url | escape:'html':'UTF-8'}</span>
-			</div>
-		{/if}
-	</div>
 
+		<div class="col-xs-12 url-container">
+			<h4>{l s='Example URLs' mod='icommktconnector'}</h4>
+			{if isset($load_cart_url) && !empty($load_cart_url)}
+				<div class="url-load-cart">
+					<span><strong>{l s='Load cart' mod='icommktconnector'}</strong>:</span>
+					<span>{html_entity_decode($load_cart_url|escape:'htmlall':'UTF-8')}</span>
+				</div>
+			{/if}
+			{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
+				<div class="url-send-abandoment-cart">
+					<span><strong>{l s='Send abandoment cart' mod='icommktconnector'}</strong>:</span>
+					<span>{html_entity_decode($send_abandoment_cart_url|escape:'htmlall':'UTF-8')}</span>
+				</div>
+			{/if}
+		</div>
+		<div class="col-xs-12 crons-container">
+			<h4>{l s='Example Crons' mod='icommktconnector'}</h4>
+			{if isset($send_abandoment_cart_url) && !empty($send_abandoment_cart_url)}
+				<div class="url-send-abandoment-cart">
+					<span>{html_entity_decode($send_abandoment_cart_url|escape:'htmlall':'UTF-8')}</span>
+				</div>
+			{/if}
+		</div>
+	</div>
 	<hr />
 </div>
