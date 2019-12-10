@@ -62,6 +62,7 @@ class Icommktconnector extends Module
         foreach ($sql as $query) {
             Db::getInstance()->Execute($query);
         }
+	    return true;
     }
 
     public function uninstallDb()
