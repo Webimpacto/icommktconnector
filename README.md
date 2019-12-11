@@ -49,3 +49,41 @@ Al instalar el módulo se crean las siguientes tablas:
 ## Importante tener en cuenta
 
 Cuando se ejecuta el cron, se añaden a la tabla "commktconnector_abandomentcarts" los carritos que se han registrado correctamente en la base de datos de ICOMMKT. Es posible, que algunos usuarios tengan varios carritos que coincidan en la fecha configurada en "Days to abandon", por lo que es posible que si se ejecuta de nuevo la consulta para enviar los carritos, se envíe otro de los carritos asociados al cliente que tenía varios.
+
+# Envio de usuarios a un perfil de Icommkt
+
+## Definición
+
+Permite enviar a ICOMMKT los usuarios que hay en la web.
+
+Se tienen en cuenta los siguiente puntos a la hora de obtener los usuarios:
+
+- Sólo se obtendrán los usuarios que se hayan registrado en la newsletter.
+
+## Campos configurables
+
+- **Profile key**
+    - Código del perfil. Es el código obtenido del perfil de ICOMMKT.
+- **Secure Token**
+    - Token de seguridad. Es el mismo que se debe introducir en la URL. Si ambos token no coinciden las funciones no se ejecutarán.    
+
+## Acciones disponibles
+
+- Envio de los usuarios.
+    - La estructura de la URL es la siguiente
+        - http://prestashop.t1.webimpacto.net/index.php?fc=module&controller=sendtoicommkt&module=icommktconnector&action=sendtoicommktuser&secure_token=[secure_token]
+
+## Tablas modificadas
+
+Al instalar el módulo se modificarán las siguientes tablas dependiendo de la versión de Prestashop:
+
+- **emailsubscription**
+    - Tabla para versiones de Prestashop > 1.7.
+    - Se añadirán dos nuevas columnas: is_send_icommkt & date_send_icommkt.
+- **newsletter**
+    - Tabla para versiones de Prestashop < 1.7.
+    - Se añadirán dos nuevas columnas: is_send_icommkt & date_send_icommkt.
+
+## Importante tener en cuenta
+
+Cuando se ejecuta el cron, se enviarán todos los usuarios a ICOMMKT. Si el usuario se ha registrado correctamente se actualizará la columna **is_send_icommkt**  modificando su valor a 1, evitando que se vuelva a enviar en un futuro.    
