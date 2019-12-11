@@ -45,6 +45,10 @@
 					<span>{html_entity_decode($send_abandoment_cart_url|escape:'htmlall':'UTF-8')}</span>
 				</div>
 			{/if}
+			<h5>{l s= 'Send user to icommkt' mod='icommktconnector'}</h5>
+			<div class="">
+				<span>{html_entity_decode($send_icommkt_user|escape:'htmlall':'UTF-8')}</span>
+			</div>
 		</div>
 	</div>
 	<hr />

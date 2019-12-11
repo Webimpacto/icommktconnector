@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.1.0';
+        $this->version = '1.2.0';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -45,13 +45,14 @@ class Icommktconnector extends Module
     {
         return parent::install() &&
         $this->installDb() &&
+        $this->addNewColumn() &&
         $this->registerHook('moduleRoutes');
     }
 
     public function uninstall()
     {
 
-        return parent::uninstall() && $this->uninstallDb();
+        return parent::uninstall() && $this->uninstallDb() && $this->uninstallColumns();
     }
 
     public function installDb()
@@ -62,13 +63,43 @@ class Icommktconnector extends Module
         foreach ($sql as $query) {
             Db::getInstance()->Execute($query);
         }
-	    return true;
+        return true;
+    }
+
+    public function addNewColumn()
+    {
+        if (Tools::version_compare(_PS_VERSION_, '1.7.0.0', '>=') == true) {
+            $sql  = 'ALTER TABLE ' . _DB_PREFIX_ . 'emailsubscription  ADD COLUMN is_send_icommkt BOOLEAN';
+            $sql2 = 'ALTER TABLE ' . _DB_PREFIX_ . 'emailsubscription  ADD COLUMN date_send_icommkt DATETIME';
+        } else {
+            $sql  = 'ALTER TABLE ' . _DB_PREFIX_ . 'newsletter ADD COLUMN is_send_icommkt BOOLEAN';
+            $sql2 = 'ALTER TABLE ' . _DB_PREFIX_ . 'newsletter ADD COLUMN date_send_icommkt DATETIME';
+        }
+        Db::getInstance()->execute($sql);
+        Db::getInstance()->execute($sql2);
+        return true;
+    }
+
+    public function uninstallColumns()
+    {
+        if (Tools::version_compare(_PS_VERSION_, '1.7.0.0', '>=') == true) {
+            $sql  = 'ALTER TABLE ' . _DB_PREFIX_ . 'emailsubscription  DROP COLUMN is_send_icommkt';
+            $sql2 = 'ALTER TABLE ' . _DB_PREFIX_ . 'emailsubscription  DROP COLUMN date_send_icommkt';
+        } else {
+            $sql  = 'ALTER TABLE ' . _DB_PREFIX_ . 'newsletter DROP COLUMN is_send_icommkt';
+            $sql2 = 'ALTER TABLE ' . _DB_PREFIX_ . 'newsletter DROP COLUMN date_send_icommkt';
+        }
+        Db::getInstance()->execute($sql);
+        Db::getInstance()->execute($sql2);
+        return true;
     }
 
     public function uninstallDb()
     {
         Db::getInstance()->Execute('DROP TABLE `' . _DB_PREFIX_ . 'commktconnector_abandomentcarts`');
         Db::getInstance()->Execute('DROP TABLE `' . _DB_PREFIX_ . 'commktconnector_abandomentcarts_error`');
+
+        return true;
     }
 
     /**
@@ -94,10 +125,16 @@ class Icommktconnector extends Module
             'secure_token' => '[secure_token]',
         ));
 
+        $send_icommkt_user = $this->getFormattedLinkUser(array(
+            'action' => 'sendtoicommktuser',
+            'secure_token' => '[secure_token]',
+        ));
+
         $this->context->smarty->assign(array(
             'module_dir' => $this->_path,
             'load_cart_url' => $load_cart_url,
-            'send_abandoment_cart_url' => $send_abandoment_cart_url
+            'send_abandoment_cart_url' => $send_abandoment_cart_url,
+            'send_icommkt_user' => $send_icommkt_user
         ));
 
         $this->context->smarty->assign('module_dir', $this->_path);
@@ -168,6 +205,14 @@ class Icommktconnector extends Module
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-gear"></i>',
                         'desc' => $this->l('You can custom this value as you wish'),
+                        'name' => 'ICOMMKT_PROFILEKEY',
+                        'label' => $this->l('Profile Key'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-gear"></i>',
+                        'desc' => $this->l('You can custom this value as you wish'),
                         'name' => 'ICOMMKT_SECURE_TOKEN',
                         'label' => $this->l('Secure TOKEN'),
                     ),
@@ -215,6 +260,7 @@ class Icommktconnector extends Module
         return array(
             'ICOMMKT_APPKEY' => Configuration::get('ICOMMKT_APPKEY', null),
             'ICOMMKT_APPTOKEN' => Configuration::get('ICOMMKT_APPTOKEN', null),
+            'ICOMMKT_PROFILEKEY' => Configuration::get('ICOMMKT_PROFILEKEY', null),
             'ICOMMKT_SECURE_TOKEN' => !empty($icommkt_secure_token) ? $icommkt_secure_token : '1cfjy758ge',
             'ICOMMKT_DAYS_TO_ABANDON' => !empty($icommkt_days_to_abandon) ? $icommkt_days_to_abandon : '1',
             'ICOMMKT_FRIENDLY_URL' => Configuration::get('ICOMMKT_FRIENDLY_URL', null),
@@ -362,7 +408,7 @@ class Icommktconnector extends Module
         );
 
         if (Configuration::get('ICOMMKT_FRIENDLY_URL', null) == 1) {
-            $result[$this->name] = array(
+            $result[$this->name.'-abandomentcart'] = array(
                 //List Orders
                 'controller' => 'abandomentcart',
                 'keywords' => array(
@@ -377,6 +423,19 @@ class Icommktconnector extends Module
                 ),
             );
         }
+
+        $result[$this->name.'-send_to_icommkt'] = array(
+            'controller' => 'sendtoicommkt',
+            'keywords' => array(
+                'action' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'action'),
+                'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
+            ),
+            'rule' => 'sendtoicommkt',
+            'params' => array(
+                'fc' => 'module',
+                'module' => $this->name
+            ),
+        );
 
         return $result;
     }
@@ -1150,6 +1209,25 @@ class Icommktconnector extends Module
         } else {
             $url = $base_url . '/index.php?fc=module&controller=abandomentcart&module=icommktconnector&';
         }
+
+        $url_end = '';
+        foreach ($params as $key => $param) {
+            $url_end .= $key . '=' . $param;
+            if (next($params)) {
+                $url_end .= '&';
+            }
+        }
+
+        $url = $url . $url_end;
+
+        return $url;
+    }
+
+    public function getFormattedLinkUser($params)
+    {
+        $base_url = Tools::getHttpHost(true);
+
+        $url = $base_url . '/index.php?fc=module&controller=sendtoicommkt&module=icommktconnector&';
 
         $url_end = '';
         foreach ($params as $key => $param) {
