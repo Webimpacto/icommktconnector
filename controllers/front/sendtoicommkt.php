@@ -54,11 +54,11 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
             exit();
         } else {
             if (Tools::version_compare(_PS_VERSION_, '1.7.0.0', '>=') == true) {
-                $sql  = 'SELECT id, email FROM ' . _DB_PREFIX_ . 'emailsubscription 
+                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'emailsubscription 
                     WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0';
                 $table = 'emailsubscription';
             } else {
-                $sql  = 'SELECT id, email FROM ' . _DB_PREFIX_ . 'newsletter 
+                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'newsletter 
                     WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0';
                 $table = 'newsletter';
             }
@@ -67,7 +67,7 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
 
             foreach ($result as $user) {
                 if ($user['email']) {
-                    $response = $this->doRequestIcommkt($user['email']);
+                    $response = $this->doRequestIcommkt($user['email'], $user['newsletter_date_add']);
                     $response = json_decode($response, true);
                     if ($response['SaveContactJsonResult']['StatusCode'] == 1) {
                         Db::getInstance()->update(
@@ -83,7 +83,7 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
         }
     }
 
-    public function doRequestIcommkt($email)
+    public function doRequestIcommkt($email, $newsletter_date_add)
     {
         $url =  "https://api.icommarketing.com/Contacts/SaveContact.Json/";
         $ch = curl_init();
@@ -92,7 +92,12 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
             'ProfileKey' => Configuration::get('ICOMMKT_PROFILEKEY'),
             'Contact' => array (
                 'Email'=> $email,
-                'CustomFields'=> array()
+                'CustomFields'=> array(
+                    array (
+                        'Key' => 'newsletter_date_add',
+                        'Value' => $newsletter_date_add
+                    )
+                )
             ),
         );
         $payload = json_encode($data);
