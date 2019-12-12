@@ -204,6 +204,14 @@ class Icommktconnector extends Module
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-gear"></i>',
+                        'desc' => $this->l('API KEY code from the account icommkt'),
+                        'name' => 'ICOMMKT_APIKEY',
+                        'label' => $this->l('API Key'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-gear"></i>',
                         'desc' => $this->l('You can custom this value as you wish'),
                         'name' => 'ICOMMKT_PROFILEKEY',
                         'label' => $this->l('Profile Key'),
@@ -260,6 +268,7 @@ class Icommktconnector extends Module
         return array(
             'ICOMMKT_APPKEY' => Configuration::get('ICOMMKT_APPKEY', null),
             'ICOMMKT_APPTOKEN' => Configuration::get('ICOMMKT_APPTOKEN', null),
+            'ICOMMKT_APIKEY' => Configuration::get('ICOMMKT_APIKEY', null),
             'ICOMMKT_PROFILEKEY' => Configuration::get('ICOMMKT_PROFILEKEY', null),
             'ICOMMKT_SECURE_TOKEN' => !empty($icommkt_secure_token) ? $icommkt_secure_token : '1cfjy758ge',
             'ICOMMKT_DAYS_TO_ABANDON' => !empty($icommkt_days_to_abandon) ? $icommkt_days_to_abandon : '1',
