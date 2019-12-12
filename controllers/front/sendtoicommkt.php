@@ -104,7 +104,7 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-Type:application/json',
-            'Authorization:' . Configuration::get('ICOMMKT_APPKEY')
+            'Authorization:' . Configuration::get('ICOMMKT_APIKEY')
         ));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);

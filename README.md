@@ -62,6 +62,8 @@ Se tienen en cuenta los siguiente puntos a la hora de obtener los usuarios:
 
 ## Campos configurables
 
+- **Api key**
+    - Código de la cuenta. Es el código obtenido de la cuenta de ICOMMKT.
 - **Profile key**
     - Código del perfil. Es el código obtenido del perfil de ICOMMKT.
 - **Secure Token**
