@@ -152,7 +152,7 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
         $days_to_abandon_value = Configuration::get('ICOMMKT_DAYS_TO_ABANDON', null);
         $days_to_abandon = !empty($days_to_abandon_value) ? $days_to_abandon_value : '1';
         $secure_token = Configuration::get('ICOMMKT_SECURE_TOKEN', null);
-        $app_key = 'MzY1ODg30';
+        $app_key = Configuration::get('ICOMMKT_PROFILEKEY_ABANDON');
         $url = 'https://api.icommarketing.com/Contacts/SaveMultiContact.Json/';
         $icommkt_connector = Module::getInstanceByName('icommktconnector');
 
@@ -221,7 +221,7 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
             curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type:application/json',
-                'Authorization:MTQ2Ny0zODg0LWFob3Jyb3RvdF91c3I1:'
+                'Authorization:' . Configuration::get('ICOMMKT_APIKEY')
             ));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);

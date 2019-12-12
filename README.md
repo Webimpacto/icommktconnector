@@ -15,7 +15,10 @@ Se tienen en cuenta los siguiente puntos a la hora de obtener los carritos:
 ## Campos configurables
 
 Se han añadido los siguientes campos al módulo "icommktconnector" para controlar el envío de carritos abandonados:
-
+- **Api key**
+    - Código de la cuenta. Es el código obtenido de la cuenta de ICOMMKT.
+- **Profile key Abandon**
+    - Código del perfil. Es el código obtenido del perfil de ICOMMKT donde se van a enviar los carritos abandonados.
 - **Secure Token**
     - Token de seguridad. Es el mismo que se debe introducir en la URL. Si ambos token no coinciden las funciones no se ejecutarán.
 - **Days to abandon**
