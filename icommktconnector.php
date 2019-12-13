@@ -211,8 +211,9 @@ class Icommktconnector extends Module
                     array(
                         'col' => 3,
                         'type' => 'text',
+                        'class' => 'newsletter',
                         'prefix' => '<i class="icon icon-gear"></i>',
-                        'desc' => $this->l('You can custom this value as you wish'),
+                        'desc' => $this->l('Code obtained from the account profile'),
                         'name' => 'ICOMMKT_PROFILEKEY',
                         'label' => $this->l('Profile Key'),
                     ),
@@ -228,7 +229,7 @@ class Icommktconnector extends Module
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-gear"></i>',
-                        'desc' => $this->l('You can custom this value as you wish'),
+                        'desc' => $this->l('Required parameter to send the data.Parameter Customizable'),
                         'name' => 'ICOMMKT_SECURE_TOKEN',
                         'label' => $this->l('Secure TOKEN'),
                     ),
@@ -236,7 +237,7 @@ class Icommktconnector extends Module
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-gear"></i>',
-                        'desc' => $this->l('You can custom this value as you wish'),
+                        'desc' => $this->l('Time that goes by to consider an abandoned cart'),
                         'name' => 'ICOMMKT_DAYS_TO_ABANDON',
                         'label' => $this->l('Days to abandon'),
                     ),
@@ -270,7 +271,6 @@ class Icommktconnector extends Module
      */
     protected function getConfigFormValues()
     {
-        $icommkt_secure_token = Configuration::get('ICOMMKT_SECURE_TOKEN', null);
         $icommkt_days_to_abandon = Configuration::get('ICOMMKT_DAYS_TO_ABANDON', null);
 
         return array(
@@ -279,7 +279,7 @@ class Icommktconnector extends Module
             'ICOMMKT_APIKEY' => Configuration::get('ICOMMKT_APIKEY', null),
             'ICOMMKT_PROFILEKEY' => Configuration::get('ICOMMKT_PROFILEKEY', null),
             'ICOMMKT_PROFILEKEY_ABANDON' => Configuration::get('ICOMMKT_PROFILEKEY_ABANDON', null),
-            'ICOMMKT_SECURE_TOKEN' => !empty($icommkt_secure_token) ? $icommkt_secure_token : '1cfjy758ge',
+            'ICOMMKT_SECURE_TOKEN' => Configuration::get('ICOMMKT_SECURE_TOKEN', null),
             'ICOMMKT_DAYS_TO_ABANDON' => !empty($icommkt_days_to_abandon) ? $icommkt_days_to_abandon : '1',
             'ICOMMKT_FRIENDLY_URL' => Configuration::get('ICOMMKT_FRIENDLY_URL', null),
         );
@@ -434,7 +434,7 @@ class Icommktconnector extends Module
                     'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
                     'id_cart' => array('regexp' => '[0-9\pL\pS-]*', 'param' => 'id_cart'),
                 ),
-                'rule' => 'abandomentcart',
+                'rule' => 'abandomentcart/{action}{id_cart}{secure_token}',
                 'params' => array(
                     'fc' => 'module',
                     'module' => $this->name
@@ -448,7 +448,7 @@ class Icommktconnector extends Module
                 'action' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'action'),
                 'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
             ),
-            'rule' => 'sendtoicommkt',
+            'rule' => 'sendtoicommkt/{action}{secure_token}',
             'params' => array(
                 'fc' => 'module',
                 'module' => $this->name
