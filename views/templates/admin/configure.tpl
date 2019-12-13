@@ -22,9 +22,45 @@
 			<h2>{l s='ICOMMKT' mod='icommktconnector'}</h2>
 			<h4>{l s='Email & Automation Marketing' mod='icommktconnector'}</h4>
 		</div>
+		<div class="col-xs-12 explication-container">
+			<h3> {l s='How to send data to a profile of Icommkt' mod='icommktconnector'} </h3>
+			<h4>{l s='Data you need:' mod='icommktconnector'}</h4>
+			<ul class="list-data-need">
+				<li class="li-data">
+					<strong>{l s='Api Key:' mod='icommktconnector'}</strong>
+					{l s='Code obtained from the account of Icommkt' mod='icommktconnector'}
+				</li>
+				<ul class="sub-list-data">
+					<li class="li-data">{l s='You can get it by clicking on the top gear -> my account' 
+					mod='icommktconnector'}</li>
+				</ul>	
+				<li class="li-data">
+					<strong>{l s='Profile key:' mod='icommktconnector'}</strong>
+					{l s='Code obtained from the account profile where the data will be sent' 
+					mod='icommktconnector'}
+				</li>
+				<ul class="sub-list-data">
+					<li class="li-data">{l s='We look for our profile, click on the arrow and click on profile key' 
+					mod='icommktconnector'}</li>
+				</ul>	
+			</ul>
+			<h4> {l s='Fields to Abandon cart' mod='icommktconnector'} </h4>
+			<ul>
+				<li>{l s='API Key' mod='icommktconnector'}</li>
+				<li>{l s='Profile Key Cart Abandon' mod='icommktconnector'}</li>
+				<li>{l s='Days to abandon' mod='icommktconnector'}</li>
+				<li>{l s='Secure TOKEN' mod='icommktconnector'}</li>
+			</ul>
+			<h4> {l s='Fields to send newsletter users' mod='icommktconnector'} </h4>
+			<ul>
+				<li>{l s='API Key' mod='icommktconnector'}</li>
+				<li>{l s='Profile Key' mod='icommktconnector'}</li>
+				<li>{l s='Secure TOKEN' mod='icommktconnector'}</li>
+			</ul>
+		</div>
 
 		<div class="col-xs-12 url-container">
-			<h4>{l s='Example URLs' mod='icommktconnector'}</h4>
+			<h3>{l s='Example URLs' mod='icommktconnector'}</h3>
 			{if isset($load_cart_url) && !empty($load_cart_url)}
 				<div class="url-load-cart">
 					<span><strong>{l s='Load cart' mod='icommktconnector'}</strong>:</span>
@@ -45,7 +81,7 @@
 					<span>{html_entity_decode($send_abandoment_cart_url|escape:'htmlall':'UTF-8')}</span>
 				</div>
 			{/if}
-			<h5>{l s= 'Send user to icommkt' mod='icommktconnector'}</h5>
+			<h5>{l s= 'Send newsletter users' mod='icommktconnector'}</h5>
 			<div class="">
 				<span>{html_entity_decode($send_icommkt_user|escape:'htmlall':'UTF-8')}</span>
 			</div>
