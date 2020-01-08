@@ -312,8 +312,8 @@ class Icommktconnector extends Module
     {
         $headers = array();
         foreach ($_SERVER as $name => $value) {
-            if (Tools::subst($name, 0, 5) == 'HTTP_') {
-                $name = Tools::strtolower(str_replace('_', ' ', Tools::subst($name, 5)));
+            if (Tools::substr($name, 0, 5) == 'HTTP_') {
+                $name = Tools::strtolower(str_replace('_', ' ', Tools::substr($name, 5)));
                 $headers[str_replace(' ', '-', ucwords($name))] = $value;
             }
         }
@@ -1067,8 +1067,8 @@ class Icommktconnector extends Module
                 'firstDigits' => "",
                 'lastDigits' => "",
                 'cvv2' => null,
-                'expireMonth' => ($value['card_expiration'] ? Tools::subst($value['card_expiration'], 2) : null),
-                'expireYear' => ($value['card_expiration'] ? Tools::subst($value['card_expiration'], -2) : null),
+                'expireMonth' => ($value['card_expiration'] ? Tools::substr($value['card_expiration'], 2) : null),
+                'expireYear' => ($value['card_expiration'] ? Tools::substr($value['card_expiration'], -2) : null),
                 'url' => null,
                 'giftCardId' => null,
                 'giftCardName' => null,
