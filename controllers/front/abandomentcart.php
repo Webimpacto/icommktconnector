@@ -41,8 +41,6 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
 
         if (empty($secure_token) || ($secure_token != $secure_token_back)) {
             $this->errors[] = Tools::displayError('El token no coincide');
-
-            //die(('El token no coincide'));
         }
 
         switch ($action) {
@@ -127,7 +125,7 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
                     $newCart = $loaded_cart;
                     $this->redirect = $this->context->link->getPageLink('order');
                 } else {
-                    $params = array('back' => $this->context->link->getPageLink('order'));
+                    $params = array('back' => Tools::getHttpHost(true) . $_SERVER['REQUEST_URI']);
                     $this->redirect = $this->context->link->getPageLink('authentication', null, null, $params);
                 }
             }
