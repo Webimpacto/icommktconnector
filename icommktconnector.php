@@ -434,7 +434,7 @@ class Icommktconnector extends Module
                     'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
                     'id_cart' => array('regexp' => '[0-9\pL\pS-]*', 'param' => 'id_cart'),
                 ),
-                'rule' => 'abandomentcart/{action}{id_cart}{secure_token}',
+                'rule' => 'abandomentcart/{action}/{secure_token}{/:id_cart}',
                 'params' => array(
                     'fc' => 'module',
                     'module' => $this->name
@@ -448,7 +448,7 @@ class Icommktconnector extends Module
                 'action' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'action'),
                 'secure_token' => array('regexp' => '[_a-zA-Z0-9\pL\pS-]*', 'param' => 'secure_token'),
             ),
-            'rule' => 'sendtoicommkt/{action}{secure_token}',
+            'rule' => 'sendtoicommkt/{action}/{secure_token}',
             'params' => array(
                 'fc' => 'module',
                 'module' => $this->name
@@ -1222,17 +1222,18 @@ class Icommktconnector extends Module
     public function getFormattedLink($params)
     {
         $base_url = Tools::getHttpHost(true);
-        if (Configuration::get('ICOMMKT_FRIENDLY_URL', null) == 1) {
-            $url = $base_url . '/abandomentcart?';
-        } else {
-            $url = $base_url . '/index.php?fc=module&controller=abandomentcart&module=icommktconnector&';
-        }
-
         $url_end = '';
-        foreach ($params as $key => $param) {
-            $url_end .= $key . '=' . $param;
-            if (next($params)) {
-                $url_end .= '&';
+        if (Configuration::get('ICOMMKT_FRIENDLY_URL', null) == 1) {
+            $url = $base_url . '/abandomentcart';
+            $url_end = '/'.$params['action']. '/'.$params['secure_token']. '/'.$params['id_cart']. '?d=0';
+        } else {
+            $url = $base_url . '/index.php?fc=module&controller=abandomentcart&module=icommktconnector&d=0&';
+
+            foreach ($params as $key => $param) {
+                $url_end .= $key . '=' . $param;
+                if (next($params)) {
+                    $url_end .= '&';
+                }
             }
         }
 
