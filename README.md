@@ -76,7 +76,7 @@ Se tienen en cuenta los siguiente puntos a la hora de obtener los usuarios:
 
 - Envio de los usuarios.
     - La estructura de la URL es la siguiente
-        - http://prestashop.t1.webimpacto.net/index.php?fc=module&controller=sendtoicommkt&module=icommktconnector&action=sendtoicommktuser&secure_token=[secure_token]
+        - http://prueba.net/.net/index.php?fc=module&controller=sendtoicommkt&module=icommktconnector&action=sendtoicommktuser&secure_token=[secure_token]
 
 ## Tablas modificadas
 

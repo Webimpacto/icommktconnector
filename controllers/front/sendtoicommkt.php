@@ -85,6 +85,8 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
 
     public function doRequestIcommkt($email, $newsletter_date_add)
     {
+        $date = date_create($newsletter_date_add);
+        $date = date_format($date, "d/m/Y");
         $url =  "https://api.icommarketing.com/Contacts/SaveContact.Json/";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -95,7 +97,7 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
                 'CustomFields'=> array(
                     array (
                         'Key' => 'newsletter_date_add',
-                        'Value' => $newsletter_date_add
+                        'Value' => $date
                     )
                 )
             ),
