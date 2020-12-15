@@ -165,6 +165,7 @@ class IcommktconnectorAbandomentcartModuleFrontController extends ModuleFrontCon
                     FROM (
                                 SELECT c_.* FROM `' . _DB_PREFIX_ . 'cart` c_
                                 LEFT JOIN ' . _DB_PREFIX_ . 'cart_product cp ON (c_.id_cart = cp.id_cart)
+                                WHERE 1 ' . Shop::addSqlRestriction(false, 'c_') . '
                                 GROUP by cp.id_cart
                     ) AS c
                     LEFT JOIN `' . _DB_PREFIX_ . 'customer` `cus` ON c.id_customer = cus.id_customer
