@@ -54,12 +54,14 @@ class IcommktconnectorSendToIcommktModuleFrontController extends ModuleFrontCont
             exit();
         } else {
             if (Tools::version_compare(_PS_VERSION_, '1.7.0.0', '>=') == true) {
-                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'emailsubscription 
-                    WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0';
+                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'emailsubscription e
+                    WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0 '.
+                    Shop::addSqlRestriction(false, 'e');
                 $table = 'emailsubscription';
             } else {
-                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'newsletter 
-                    WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0';
+                $sql  = 'SELECT id, email, newsletter_date_add FROM ' . _DB_PREFIX_ . 'newsletter n
+                    WHERE is_send_icommkt IS NULL OR is_send_icommkt = 0 '.
+                    Shop::addSqlRestriction(false, 'n');
                 $table = 'newsletter';
             }
             
