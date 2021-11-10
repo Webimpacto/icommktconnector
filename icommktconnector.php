@@ -26,7 +26,7 @@ class Icommktconnector extends Module
     {
         $this->name = 'icommktconnector';
         $this->tab = 'emailing';
-        $this->version = '1.2.1';
+        $this->version = '1.2.2';
         $this->author = 'icommkt';
         $this->need_instance = 0;
 
@@ -1093,8 +1093,16 @@ class Icommktconnector extends Module
         foreach ($customers as $customer) {
             $customer['address_data_object'] = $this->getAddressCustomer($customer['id_customer']);
             $customer['address_company_object'] = $this->getAddressCompanyCustomer($customer['id_customer']);
-            $customer['localeDefault'] = (($customer['id_lang'] && isset($langs[$customer['id_lang']])) ?
-                $langs[$customer['id_lang']]['iso_code'] : null);
+            if(($customer['id_lang'] && isset($langs))) {
+                foreach($langs as $lang) {
+                    if($lang['id_lang'] == $customer['id_lang']) {
+                        $localeDefault = $lang['iso_code'];
+                    }
+                }
+            } else {
+                $localeDefault = null;
+            }
+            $customer['localeDefault'] = $localeDefault;
             $prepared_data[] = $this->formatCustomerDataToVTEX($customer);
         }
         die(json_encode($prepared_data));
