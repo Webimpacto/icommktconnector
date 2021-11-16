@@ -1093,12 +1093,10 @@ class Icommktconnector extends Module
         foreach ($customers as $customer) {
             $customer['address_data_object'] = $this->getAddressCustomer($customer['id_customer']);
             $customer['address_company_object'] = $this->getAddressCompanyCustomer($customer['id_customer']);
+
             if(($customer['id_lang'] && isset($langs))) {
-                foreach($langs as $lang) {
-                    if($lang['id_lang'] == $customer['id_lang']) {
-                        $localeDefault = $lang['iso_code'];
-                    }
-                }
+                $localeDefaultKey = array_search($customer['id_lang'], array_column($langs, 'id_lang'));
+                $localeDefault = $langs[$localeDefaultKey]['iso_code'];
             } else {
                 $localeDefault = null;
             }
